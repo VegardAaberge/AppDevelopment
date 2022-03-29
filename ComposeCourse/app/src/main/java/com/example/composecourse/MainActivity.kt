@@ -9,11 +9,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AnimationsBox().Setup()
+            CircularProgressBar().Setup()
         }
     }
 }
-
 
 
 
