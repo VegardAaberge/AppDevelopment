@@ -9,7 +9,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MusicKnob().Setup(context = this)
+            ProfileScreen()
         }
     }
 }
