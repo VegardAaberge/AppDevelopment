@@ -155,10 +155,11 @@ class MusicKnob {
                                 angle
                             }
 
-                            rotation = fixedAngle
-                            val percent = (fixedAngle - limitingAngle) / (360f - 2 * limitingAngle)
-                            onValueChange(percent)
-                            true
+                            if((fixedAngle - rotation) in -60f..60f){
+                                rotation = fixedAngle
+                                val percent = (fixedAngle - limitingAngle) / (360f - 2 * limitingAngle)
+                                onValueChange(percent)
+                            }
                         }
                     }
                 }
