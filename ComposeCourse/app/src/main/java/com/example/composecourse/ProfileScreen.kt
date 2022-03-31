@@ -65,7 +65,7 @@ fun ProfileScreen() {
 }
 
 @Composable
-fun TopBar(
+private fun TopBar(
     name: String,
     modifier: Modifier = Modifier
 ){
@@ -103,7 +103,7 @@ fun TopBar(
 }
 
 @Composable
-fun ProfileSection(
+private fun ProfileSection(
     modifier: Modifier = Modifier
 ){
     Column(modifier = modifier.fillMaxWidth()) {
@@ -135,7 +135,7 @@ fun ProfileSection(
 }
 
 @Composable
-fun RoundImage(
+private fun RoundImage(
     image: Painter,
     modifier: Modifier
 ){
@@ -155,7 +155,7 @@ fun RoundImage(
 }
 
 @Composable
-fun StatSection(modifier: Modifier = Modifier) {
+private fun StatSection(modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround,
@@ -168,7 +168,7 @@ fun StatSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ProfileStat(
+private fun ProfileStat(
     numberText: String,
     text: String,
     modifier: Modifier = Modifier
@@ -189,7 +189,7 @@ fun ProfileStat(
 }
 
 @Composable
-fun ProfileDescription(
+private fun ProfileDescription(
     displayName: String,
     description: String,
     url: String,
@@ -251,7 +251,7 @@ fun ProfileDescription(
 }
 
 @Composable
-fun ButtonSection(
+private fun ButtonSection(
     modifier: Modifier = Modifier
 ) {
    val minWidth = 95.dp
@@ -289,7 +289,7 @@ fun ButtonSection(
 }
 
 @Composable
-fun ActionButton(
+private fun ActionButton(
     modifier: Modifier = Modifier,
     text: String? = null,
     icon: ImageVector? = null
@@ -323,7 +323,7 @@ fun ActionButton(
 }
 
 @Composable
-fun HighlightSection(modifier: Modifier = Modifier) {
+private fun HighlightSection(modifier: Modifier = Modifier) {
     HighlightSectionBody(
         modifier = modifier,
         hightlights = listOf(
@@ -348,7 +348,7 @@ fun HighlightSection(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HighlightSectionBody(
+private fun HighlightSectionBody(
     modifier: Modifier = Modifier,
     hightlights: List<ImageWithText>
 ) {
@@ -375,7 +375,7 @@ fun HighlightSectionBody(
 }
 
 @Composable
-fun PostTabView(
+private fun PostTabView(
     modifier: Modifier = Modifier,
     selectedTabIndex: Int,
     onTabSelected: (selectedIndex: Int) -> Unit
@@ -418,7 +418,7 @@ fun PostTabView(
 }
 
 @Composable
-fun PostTabViewBody(
+private fun PostTabViewBody(
     modifier: Modifier = Modifier,
     imageWithText: List<ImageWithText>,
     onTabSelected: (selectedIndex: Int) -> Unit
@@ -458,7 +458,7 @@ fun PostTabViewBody(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun PostSection(
+private fun PostSection(
     posts: List<Painter>,
     modifier: Modifier = Modifier
 ) {

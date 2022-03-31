@@ -17,7 +17,7 @@ import androidx.navigation.navArgument
 import com.example.composecourse.models.Screen
 
 @Composable
-fun Navigation() {
+fun SetupNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -42,7 +42,7 @@ fun Navigation() {
 }
 
 @Composable
-fun MainScreen(navController: NavController) {
+private fun MainScreen(navController: NavController) {
     var text by remember {
         mutableStateOf("")
     }
@@ -73,7 +73,7 @@ fun MainScreen(navController: NavController) {
 }
 
 @Composable
-fun DetailScreen(name: String?) {
+private fun DetailScreen(name: String?) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()

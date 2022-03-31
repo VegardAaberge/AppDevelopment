@@ -60,7 +60,7 @@ fun SetupBottomNavigation() {
 }
 
 @Composable
-fun BottomNavigationScreen(navController: NavHostController) {
+private fun BottomNavigationScreen(navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -79,7 +79,7 @@ fun BottomNavigationScreen(navController: NavHostController) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BottomNavigationBar(
+private fun BottomNavigationBar(
     items: List<BottomNavItem>,
     navController: NavHostController,
     modifier: Modifier = Modifier,
@@ -134,7 +134,7 @@ fun BottomNavigationBar(
 }
 
 @Composable
-fun HomeScreen() {
+private fun HomeScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -144,7 +144,7 @@ fun HomeScreen() {
 }
 
 @Composable
-fun ChatScreen() {
+private fun ChatScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -154,7 +154,7 @@ fun ChatScreen() {
 }
 
 @Composable
-fun SettingsScreen() {
+private fun SettingsScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

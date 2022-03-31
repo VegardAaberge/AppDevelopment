@@ -31,7 +31,7 @@ fun SetupSplashScreen() {
 }
 
 @Composable
-fun SplashScreenMain() {
+private fun SplashScreenMain() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -52,7 +52,7 @@ fun SplashScreenMain() {
 }
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
+private fun SplashScreen(navController: NavHostController) {
     val scale = remember {
         Animatable(0f)
     }
