@@ -7,6 +7,7 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -16,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.composecourse.models.Screen
 import com.example.composecourse.navigation.destinations.DetailScreenDestination
+import com.example.composecourse.navigation.destinations.PostScreenDestination
 import com.plcoding.composenavdestinationsdemo.User
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
@@ -30,7 +32,7 @@ fun SetupNavigationV2() {
 @Destination(start = true)
 @Composable
 fun MainScreen(
-    navigatior: DestinationsNavigator
+    navigator: DestinationsNavigator
 ) {
     var text by remember {
         mutableStateOf("")
@@ -52,11 +54,11 @@ fun MainScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Button(
             onClick = {
-                navigatior.navigate(
+                navigator.navigate(
                     DetailScreenDestination(
                         User(
                             name = text,
-                            id = "321",
+                            id = "userID",
                             created = LocalDateTime.now()
                         )
                     )
@@ -72,13 +74,41 @@ fun MainScreen(
 @Destination
 @Composable
 fun DetailScreen(
-    navigatior: DestinationsNavigator,
+    navigator: DestinationsNavigator,
     user: User
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(text = "Hello ${user.name} with ID ${user.id} created ${user.created} ")
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Hello ${user.name} with ID ${user.id} created ${user.created} "
+            )
+            Button(onClick = {
+                navigator.navigate(PostScreenDestination())
+            }) {
+                Text("Go to Post Screen")
+            }
+        }
+
+    }
+}
+
+@Destination
+@Composable
+fun PostScreen(
+    showOnlyPostsByUser: Boolean = false
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "Post Screen, $showOnlyPostsByUser")
     }
 }
