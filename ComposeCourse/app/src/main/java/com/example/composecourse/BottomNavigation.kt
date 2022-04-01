@@ -1,5 +1,6 @@
 package com.example.composecourse
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -103,11 +104,18 @@ private fun BottomNavigationBar(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         if(item.badgeCount > 0){
-                            BadgeBox(
-                                badgeContent = {
-                                    Text(text = item.badgeCount.toString())
-                                }
-                            ) {
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        backgroundColor = Color.Red,
+                                    ){
+                                        Text(
+                                            color = Color.White,
+                                            text = item.badgeCount.toString()
+                                        )
+                                    }
+                                })
+                            {
                                 Icon(
                                     imageVector = item.icon,
                                     contentDescription = item.name

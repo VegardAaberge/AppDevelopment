@@ -3,6 +3,8 @@ package com.example.composecourse
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material.BottomNavigation
+import com.example.composecourse.navigation.SetupNavigationV2
 import com.example.composecourse.ui.theme.ComposeCourseTheme
 
 class MainActivity : ComponentActivity() {
@@ -11,7 +13,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ComposeCourseTheme{
-                
+                SetupNavigationV2()
             }
         }
     }

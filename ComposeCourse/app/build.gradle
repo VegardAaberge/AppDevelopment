@@ -1,6 +1,19 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'com.google.devtools.ksp' version '1.6.10-1.0.2'
+}
+
+kotlin {
+    sourceSets {
+        debug {
+            kotlin.srcDir("build/generated/ksp/debug/kotlin")
+        }
+        release {
+            kotlin.srcDir("build/generated/ksp/release/kotlin")
+        }
+    }
 }
 
 android {
@@ -8,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.composecourse"
-        minSdk 24
+        minSdk 26
         targetSdk 32
         versionCode 1
         versionName "1.0"
@@ -65,4 +78,8 @@ dependencies {
 
     // Permissions
     implementation 'com.google.accompanist:accompanist-permissions:0.21.1-beta'
+
+    // Navigation V2
+    implementation 'io.github.raamcosta.compose-destinations:core:1.1.2-beta'
+    ksp 'io.github.raamcosta.compose-destinations:ksp:1.1.2-beta'
 }
