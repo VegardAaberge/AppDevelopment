@@ -1,6 +1,6 @@
 package com.example.composecourse.repository
 
 interface Paginator<Key, Item> {
-    fun loadNextItem()
+    suspend fun loadNextItem()
     fun reset()
 }
