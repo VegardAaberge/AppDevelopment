@@ -13,15 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.composecourse.models.ListItem
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @Composable
-fun SetupLazyColumnSelected() {
+fun LazyColumnSelectedScreen() {
     var items by remember {
         mutableStateOf(
             (0..20).map {
                 ListItem(
                     title = "Item $it",
-                    isSelected = false
+                    isSelected = false,
                 )
             }
         )

@@ -10,48 +10,47 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlin.random.Random
 
-class ColorState {
-
-    @Composable
-    fun Setup(){
-        var color = remember {
-            mutableStateOf(Color.Yellow)
-        }
-
-        Column(Modifier.fillMaxSize()) {
-            ColorBox(
-                Modifier.weight(1f).fillMaxSize(),
-            ){
-                color.value = it
-            }
-            Box(
-                Modifier
-                    .background(color.value)
-                    .weight(1f)
-                    .fillMaxSize()
-            )
-        }
+@Destination
+@Composable
+fun ColorStateScreen(){
+    var color = remember {
+        mutableStateOf(Color.Yellow)
     }
 
-    @Composable
-    fun ColorBox(
-        modifier: Modifier = Modifier,
-        updateColor: (Color) -> Unit
-    ){
-        Box(modifier = modifier
-            .background(Color.Red)
-            .clickable {
-                updateColor(
-                    Color(
-                        Random.nextFloat(),
-                        Random.nextFloat(),
-                        Random.nextFloat(),
-                        1f
-                    )
-                )
-            }
+    Column(Modifier.fillMaxSize()) {
+        ColorBox(
+            Modifier.weight(1f).fillMaxSize(),
+        ){
+            color.value = it
+        }
+        Box(
+            Modifier
+                .background(color.value)
+                .weight(1f)
+                .fillMaxSize()
         )
     }
+}
+
+@Composable
+fun ColorBox(
+    modifier: Modifier = Modifier,
+    updateColor: (Color) -> Unit
+){
+    Box(modifier = modifier
+        .background(Color.Red)
+        .clickable {
+            updateColor(
+                Color(
+                    Random.nextFloat(),
+                    Random.nextFloat(),
+                    Random.nextFloat(),
+                    1f
+                )
+            )
+        }
+    )
 }

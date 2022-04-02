@@ -11,9 +11,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.composecourse.viewmodel.MainViewModel
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @Composable
-fun SetupPagination() {
+fun PaginationScreen() {
     val viewModel = viewModel<MainViewModel>()
     val state = viewModel.state
     LazyColumn(

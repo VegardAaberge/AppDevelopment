@@ -15,9 +15,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.composecourse.models.Screen
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @Composable
-fun SetupNavigation() {
+fun NavigationScreen() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,

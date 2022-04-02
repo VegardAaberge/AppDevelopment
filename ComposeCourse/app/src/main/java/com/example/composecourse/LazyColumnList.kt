@@ -11,25 +11,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ramcosta.composedestinations.annotation.Destination
 
-class LazyColumnList {
-
-    @Composable
-    fun Setup(){
-        LazyColumn{
-            itemsIndexed(
-                listOf("This", "is", "Jetpack", "Compose")
-            ){ index, string ->
-                Text(
-                    text = string,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp)
-                )
-            }
+@Destination
+@Composable
+fun LazyColumnListScreen(){
+    LazyColumn{
+        itemsIndexed(
+            listOf("This", "is", "Jetpack", "Compose")
+        ){ index, string ->
+            Text(
+                text = string,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp)
+            )
         }
     }
 }

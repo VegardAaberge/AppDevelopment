@@ -16,54 +16,53 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import com.ramcosta.composedestinations.annotation.Destination
 
-class CustomText {
+private fun getLexendFont() : FontFamily {
+    return FontFamily(
+        Font(R.font.lexend_thin, FontWeight.Thin),
+        Font(R.font.lexend_light, FontWeight.Light),
+        Font(R.font.lexend_regular, FontWeight.Normal),
+        Font(R.font.lexend_medium, FontWeight.Medium),
+        Font(R.font.lexend_semibold, FontWeight.SemiBold),
+        Font(R.font.lexend_bold, FontWeight.Bold),
+        Font(R.font.lexend_extrabold, FontWeight.ExtraBold ),
+    )
+}
 
-    fun getLexendFont() : FontFamily {
-        return FontFamily(
-            Font(R.font.lexend_thin, FontWeight.Thin),
-            Font(R.font.lexend_light, FontWeight.Light),
-            Font(R.font.lexend_regular, FontWeight.Normal),
-            Font(R.font.lexend_medium, FontWeight.Medium),
-            Font(R.font.lexend_semibold, FontWeight.SemiBold),
-            Font(R.font.lexend_bold, FontWeight.Bold),
-            Font(R.font.lexend_extrabold, FontWeight.ExtraBold ),
+@Destination
+@Composable
+fun CustomTextScreen(){
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFF101010))){
+        Text(
+            text = buildAnnotatedString{
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Green,
+                        fontSize = 50.sp
+                    )
+                ){
+                    append("J")
+                }
+                append("etpack ")
+                withStyle(
+                    style = SpanStyle(
+                        color = Color.Green,
+                        fontSize = 50.sp
+                    )
+                ){
+                    append("C")
+                }
+                append("ompose")
+            },
+            color = Color.White,
+            fontSize = 30.sp,
+            fontFamily = getLexendFont(),
+            fontWeight = FontWeight.Bold,
+            fontStyle = FontStyle.Italic,
+            textAlign = TextAlign.Center
         )
-    }
-
-    @Composable
-    fun Setup(){
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF101010))){
-            Text(
-                text = buildAnnotatedString{
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color.Green,
-                            fontSize = 50.sp
-                        )
-                    ){
-                        append("J")
-                    }
-                    append("etpack ")
-                    withStyle(
-                        style = SpanStyle(
-                            color = Color.Green,
-                            fontSize = 50.sp
-                        )
-                    ){
-                        append("C")
-                    }
-                    append("ompose")
-                },
-                color = Color.White,
-                fontSize = 30.sp,
-                fontFamily = getLexendFont(),
-                fontWeight = FontWeight.Bold,
-                fontStyle = FontStyle.Italic,
-                textAlign = TextAlign.Center
-            )
-        }
     }
 }

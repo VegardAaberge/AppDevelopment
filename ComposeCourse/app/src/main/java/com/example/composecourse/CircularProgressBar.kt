@@ -21,63 +21,62 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ramcosta.composedestinations.annotation.Destination
 
-class CircularProgressBar {
+@Destination
+@Composable
+fun CircularProgressBarScreen(){
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        CircularProgressBar(percentage = 0.8f, number = 100)
+    }
+}
 
-    @Composable
-    fun Setup(){
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            CircularProgressBar(percentage = 0.8f, number = 100)
-        }
+@Composable
+private fun CircularProgressBar(
+    percentage: Float,
+    number: Int,
+    fontSize: TextUnit = 28.sp,
+    radius: Dp = 50.dp,
+    color: Color = Color.Green,
+    strokeWidth: Dp = 8.dp,
+    animDuration: Int = 1000,
+    animDelay: Int = 0
+) {
+    var animationPlayed by remember {
+        mutableStateOf(false)
+    }
+    val curPercentage = animateFloatAsState(
+        targetValue = if(animationPlayed) percentage else 0f,
+        animationSpec = tween(
+            durationMillis = animDuration,
+            delayMillis = animDelay
+        )
+    )
+    LaunchedEffect(key1 = true){
+        animationPlayed = true
     }
 
-    @Composable
-    private fun CircularProgressBar(
-        percentage: Float,
-        number: Int,
-        fontSize: TextUnit = 28.sp,
-        radius: Dp = 50.dp,
-        color: Color = Color.Green,
-        strokeWidth: Dp = 8.dp,
-        animDuration: Int = 1000,
-        animDelay: Int = 0
-    ) {
-        var animationPlayed by remember {
-            mutableStateOf(false)
-        }
-        val curPercentage = animateFloatAsState(
-            targetValue = if(animationPlayed) percentage else 0f,
-            animationSpec = tween(
-                durationMillis = animDuration,
-                delayMillis = animDelay
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.size(radius * 2f)
+    ){
+        Canvas(modifier = Modifier.size(radius * 2f)){
+            drawArc(
+                color = color,
+                startAngle = -90f,
+                sweepAngle = 360 * curPercentage.value,
+                useCenter = false,
+                style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round)
             )
+        }
+        Text(
+            text = (curPercentage.value * number).toInt().toString(),
+            color = Color.Black,
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
         )
-        LaunchedEffect(key1 = true){
-            animationPlayed = true
-        }
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(radius * 2f)
-        ){
-            Canvas(modifier = Modifier.size(radius * 2f)){
-                drawArc(
-                    color = color,
-                    startAngle = -90f,
-                    sweepAngle = 360 * curPercentage.value,
-                    useCenter = false,
-                    style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round)
-                )
-            }
-            Text(
-                text = (curPercentage.value * number).toInt().toString(),
-                color = Color.Black,
-                fontSize = fontSize,
-                fontWeight = FontWeight.Bold
-            )
-        }
     }
 }

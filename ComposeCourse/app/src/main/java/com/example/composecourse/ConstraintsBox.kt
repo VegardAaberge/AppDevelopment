@@ -12,45 +12,45 @@ import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
+import com.ramcosta.composedestinations.annotation.Destination
 
-class ConstraintsBox {
-
-    /*
+/*
     Needs to include dependency
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.0'
      */
-    @Composable
-    fun Setup(){
-        val constraints = ConstraintSet{
-            val greenBox = createRefFor("greenbox")
-            val redBox = createRefFor("redbox")
-            val guideline = createGuidelineFromTop(0.5f)
 
-            constrain(greenBox){
-                top.linkTo(guideline)
-                start.linkTo(parent.start)
-                width = Dimension.value(100.dp)
-                height = Dimension.value(100.dp)
-            }
+@Destination
+@Composable
+fun ConstraintBoxScreen(){
+    val constraints = ConstraintSet{
+        val greenBox = createRefFor("greenbox")
+        val redBox = createRefFor("redbox")
+        val guideline = createGuidelineFromTop(0.5f)
 
-            constrain(redBox){
-                top.linkTo(parent.top)
-                start.linkTo(greenBox.end)
-                end.linkTo(parent.end)
-                width = Dimension.value(100.dp)
-                height = Dimension.value(100.dp)
-            }
-            createHorizontalChain(greenBox, redBox, chainStyle = ChainStyle.Packed)
+        constrain(greenBox){
+            top.linkTo(guideline)
+            start.linkTo(parent.start)
+            width = Dimension.value(100.dp)
+            height = Dimension.value(100.dp)
         }
-        ConstraintLayout(constraints, modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier
-                .background(Color.Green)
-                .layoutId("greenbox")
-            )
-            Box(modifier = Modifier
-                .background(Color.Red)
-                .layoutId("redbox")
-            )
+
+        constrain(redBox){
+            top.linkTo(parent.top)
+            start.linkTo(greenBox.end)
+            end.linkTo(parent.end)
+            width = Dimension.value(100.dp)
+            height = Dimension.value(100.dp)
         }
+        createHorizontalChain(greenBox, redBox, chainStyle = ChainStyle.Packed)
+    }
+    ConstraintLayout(constraints, modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .background(Color.Green)
+            .layoutId("greenbox")
+        )
+        Box(modifier = Modifier
+            .background(Color.Red)
+            .layoutId("redbox")
+        )
     }
 }

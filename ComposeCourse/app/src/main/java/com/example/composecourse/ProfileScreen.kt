@@ -34,7 +34,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composecourse.models.ImageWithText
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @Composable
 fun ProfileScreen() {
     var selectedTabIndex by remember {

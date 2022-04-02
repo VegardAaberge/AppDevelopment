@@ -21,10 +21,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.composecourse.models.Screen
+import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.delay
 
+@Destination
 @Composable
-fun SetupSplashScreen() {
+fun SplashScreen() {
     Surface(color = MaterialTheme.colors.background) {
         SplashScreenMain()
     }

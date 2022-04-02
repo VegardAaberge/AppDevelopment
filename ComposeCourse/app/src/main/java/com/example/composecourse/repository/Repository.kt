@@ -1,4 +1,5 @@
 package com.example.composecourse.repository
+import com.example.composecourse.destinations.PostScreenDestination
 import com.example.composecourse.models.ListItem
 import kotlinx.coroutines.delay
 
@@ -7,7 +8,7 @@ class Repository {
     private val remoteDataSource = (1..100).map {
         ListItem(
             title = "Item $it",
-            description = "Description $it"
+            description = "Description $it",
         )
     }
 

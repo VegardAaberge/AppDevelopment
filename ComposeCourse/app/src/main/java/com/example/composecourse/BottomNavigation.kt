@@ -23,9 +23,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.composecourse.models.BottomNavItem
 import com.example.composecourse.models.Screen
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @Composable
-fun SetupBottomNavigation() {
+fun BottomNavigationScreen() {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {

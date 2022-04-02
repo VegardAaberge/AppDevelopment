@@ -15,10 +15,12 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.example.composecourse.extensions.isPermanentlyDenied
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun RequestPermissionsAndDisplay() {
+fun PermissionsScreen() {
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
             Manifest.permission.RECORD_AUDIO,

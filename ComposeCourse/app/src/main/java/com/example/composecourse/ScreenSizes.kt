@@ -14,9 +14,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composecourse.models.WindowInfo
 import com.example.composecourse.models.rememberWindowInfo
+import com.ramcosta.composedestinations.annotation.Destination
 
+@Destination
 @Composable
-fun SetupScreenSizes() {
+fun ScreenSizeScreen() {
     val windowInfo = rememberWindowInfo()
 
     if(windowInfo.screenWidthInfo is WindowInfo.WindowType.Compact){

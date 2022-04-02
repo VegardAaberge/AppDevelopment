@@ -15,23 +15,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.composecourse.destinations.DetailScreenDestination
+import com.example.composecourse.destinations.PostScreenDestination
 import com.example.composecourse.models.Screen
-import com.example.composecourse.navigation.destinations.DetailScreenDestination
-import com.example.composecourse.navigation.destinations.PostScreenDestination
 import com.plcoding.composenavdestinationsdemo.User
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.LocalDateTime
 
+@Destination
 @Composable
-fun SetupNavigationV2() {
-    DestinationsNavHost(navGraph = NavGraphs.root)
-}
-
-@Destination(start = true)
-@Composable
-fun MainScreen(
+fun NavigationV2Screen(
     navigator: DestinationsNavigator
 ) {
     var text by remember {
