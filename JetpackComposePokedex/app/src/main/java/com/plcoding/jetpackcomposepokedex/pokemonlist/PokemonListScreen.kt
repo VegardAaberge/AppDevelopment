@@ -2,6 +2,7 @@ package com.plcoding.jetpackcomposepokedex.pokemonlist
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -78,7 +79,7 @@ fun SearchBar(
                 .fillMaxWidth()
                 .shadow(5.dp, CircleShape)
                 .background(Color.White, CircleShape)
-                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
                 .onFocusChanged {
                     isHintDisplayed = !it.isFocused
                 }
@@ -88,7 +89,7 @@ fun SearchBar(
                 text = hint,
                 color = Color.LightGray,
                 modifier = Modifier
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
             )
         }
     }
