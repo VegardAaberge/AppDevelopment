@@ -1,4 +1,4 @@
-package com.plcoding.util
+package com.plcoding.jetpackcomposepokedex.util
 
 object Constants {
 

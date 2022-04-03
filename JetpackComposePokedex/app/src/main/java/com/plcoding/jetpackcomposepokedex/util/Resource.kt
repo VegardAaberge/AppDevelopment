@@ -1,4 +1,4 @@
-package com.plcoding.util
+package com.plcoding.jetpackcomposepokedex.util
 
 sealed class Resource<T>(
     val data: T? = null,
