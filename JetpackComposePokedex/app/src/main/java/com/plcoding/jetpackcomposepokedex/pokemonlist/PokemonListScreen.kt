@@ -189,13 +189,13 @@ fun PokedexEntry(
     ){
         Column {
             val painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(data = entry.imageUrl)
-                        .apply(block = fun ImageRequest.Builder.() {
-                            //
-                        })
-                        .crossfade(true)
-                        .build()
-                )
+                ImageRequest.Builder(LocalContext.current).data(data = entry.imageUrl)
+                    .apply(block = fun ImageRequest.Builder.() {
+                        //
+                    })
+                    .crossfade(true)
+                    .build()
+            )
             (painter.state as? AsyncImagePainter.State.Success)
                 ?.let { successState ->
                     LaunchedEffect(Unit) {
