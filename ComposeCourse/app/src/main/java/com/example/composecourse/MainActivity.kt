@@ -20,7 +20,7 @@ import com.example.composecourse.navigation.PostScreen
 import com.example.composecourse.ui.theme.ComposeCourseTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

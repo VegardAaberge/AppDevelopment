@@ -36,11 +36,14 @@ import coil.compose.*
 import coil.request.ImageRequest
 import com.plcoding.jetpackcomposepokedex.R
 import com.plcoding.jetpackcomposepokedex.data.models.PokedexListEntry
+import com.plcoding.jetpackcomposepokedex.destinations.DetailScreenDestination
 import com.plcoding.jetpackcomposepokedex.ui.theme.RobotoCondensed
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Composable
 fun PokemonListScreen(
-    navController: NavController
+    navController: DestinationsNavigator,
+    viewModel: PokemonListViewModel = hiltViewModel()
 ) {
     Surface(
         color = MaterialTheme.colors.background,
@@ -61,7 +64,7 @@ fun PokemonListScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ){
-
+                viewModel.searchPokemonList(it)
             }
             Spacer(modifier = Modifier.height(16.dp))
             PokemonList(navController = navController)
@@ -98,7 +101,7 @@ fun SearchBar(
                 .background(Color.White, CircleShape)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
                 .onFocusChanged {
-                    isHintDisplayed = !it.isFocused
+                    isHintDisplayed = !it.isFocused && text.isEmpty()
                 }
         )
         if(isHintDisplayed){
@@ -114,13 +117,14 @@ fun SearchBar(
 
 @Composable
 fun PokemonList(
-    navController: NavController,
+    navController: DestinationsNavigator,
     viewModel: PokemonListViewModel = hiltViewModel()
 ) {
     val pokemonList by remember { viewModel.pokemonList }
     val endReached by remember { viewModel.endReached }
     val loadError by remember { viewModel.loadError }
     val isLoading by remember { viewModel.isLoading }
+    val isSearching by remember { viewModel.isSearching }
 
     LazyColumn(contentPadding = PaddingValues(16.dp)){
         val itemCount = if(pokemonList.size % 2 == 0) {
@@ -129,7 +133,7 @@ fun PokemonList(
             pokemonList.size / 2 + 1
         }
         items(itemCount){
-            if(it >= itemCount - 1 && !endReached){
+            if(it >= itemCount - 1 && !endReached && !isLoading && !isSearching){
                 viewModel.loadPokemonPaginated()
             }
             PokedexRow(
@@ -158,7 +162,7 @@ fun PokemonList(
 @Composable
 fun PokedexEntry(
     entry: PokedexListEntry,
-    navController: NavController,
+    navController: DestinationsNavigator,
     modifier: Modifier = Modifier,
     viewModel: PokemonListViewModel = hiltViewModel()
 ) {
@@ -183,8 +187,12 @@ fun PokedexEntry(
             )
             .clickable {
                 navController.navigate(
-                    "pokemon_detail_screen/${dominantColor.toArgb()}/${entry.pokemonName}"
+                    DetailScreenDestination(
+                        pokemonName = entry.pokemonName,
+                        dominantColor = dominantColor.toArgb()
+                    )
                 )
+                //${dominantColor.toArgb()}/${entry.pokemonName}
             }
     ){
         Column {
@@ -196,15 +204,14 @@ fun PokedexEntry(
                     .crossfade(true)
                     .build()
             )
-            (painter.state as? AsyncImagePainter.State.Success)
-                ?.let { successState ->
-                    LaunchedEffect(Unit) {
-                        val drawable = successState.result.drawable
-                        viewModel.calcDominantColor(drawable) { color ->
-                            dominantColor = color
-                        }
+            (painter.state as? AsyncImagePainter.State.Success)?.let { successState ->
+                LaunchedEffect(Unit) {
+                    val drawable = successState.result.drawable
+                    viewModel.calcDominantColor(drawable) { color ->
+                        dominantColor = color
                     }
                 }
+            }
 
             Image(
                 painter = painter,
@@ -228,7 +235,7 @@ fun PokedexEntry(
 fun PokedexRow(
     rowIndex: Int,
     entries: List<PokedexListEntry>,
-    navController: NavController
+    navController: DestinationsNavigator
 ) {
     Column {
         Row {
