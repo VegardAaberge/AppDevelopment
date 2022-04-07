@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.TopCenter
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -49,7 +50,6 @@ fun PokemonDetailScreen(
     ) {
         PokemonDetailTopSection(
             navigator = navigator,
-            alignment = TopCenter,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.2f)
@@ -69,7 +69,7 @@ fun PokemonDetailScreen(
                 .background(MaterialTheme.colors.surface)
                 .padding(16.dp),
             loadingModifier = Modifier
-                .size(100.dp)
+                .fillMaxSize()
                 .padding(
                     top = topPadding + pokemonImageSize / 2f,
                     start = 16.dp,
@@ -99,11 +99,10 @@ fun PokemonDetailScreen(
 @Composable
 fun PokemonDetailTopSection(
     navigator: DestinationsNavigator,
-    alignment: Alignment,
     modifier: Modifier = Modifier,
 ) {
     Box(
-        contentAlignment = alignment,
+        contentAlignment = TopStart,
         modifier = modifier
             .background(
                 Brush.verticalGradient(
@@ -132,16 +131,15 @@ fun PokemonDetailTopSection(
 fun PokemonDetailStateWrapper(
     pokemonInfo: Resource<Pokemon>,
     modifier: Modifier = Modifier,
-    loadingModifier: Modifier
+    loadingModifier: Modifier = Modifier
 ) {
     when(pokemonInfo){
         is Resource.Success -> {
-            Box(
-                contentAlignment = BottomCenter,
+            PokemonDetailSection(
+                pokemonInfo = pokemonInfo.data!!,
                 modifier = modifier
-            ) {
-
-            }
+                    .offset(y = (-20).dp)
+            )
         }
         is Resource.Error -> {
             Text(
@@ -157,6 +155,9 @@ fun PokemonDetailStateWrapper(
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colors.primary,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .align(Center)
                 )
             }
         }
