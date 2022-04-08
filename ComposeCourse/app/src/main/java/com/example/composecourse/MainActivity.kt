@@ -55,6 +55,11 @@ fun ScreenList(
                     typedDestination = BottomNavigationScreenDestination()
                 ),
                 ListItem(
+                    title = "Canvas",
+                    description = "",
+                    typedDestination = MyCanvasDestination()
+                ),
+                ListItem(
                     title = "CircularProgressBar",
                     description = "Loads a circular progress bar",
                     typedDestination = CircularProgressBarScreenDestination(),
