@@ -27,7 +27,9 @@ fun EditNoteScreen(
     noteColor: Int = -1,
     viewModel: EditNoteViewModel = hiltViewModel()
 ) {
-    viewModel.onEvent(EditNoteEvent.SetNoteId(noteId))
+    LaunchedEffect(key1 = true){
+        viewModel.onEvent(EditNoteEvent.SetNoteId(noteId))
+    }
 
     val titleState = viewModel.noteTitle.value
     val contentState = viewModel.noteContent.value
