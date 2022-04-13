@@ -1,1 +1,0 @@
-rootProject.name = "no.vegardaaberge.ktor-note"
