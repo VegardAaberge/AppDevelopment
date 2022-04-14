@@ -5,7 +5,9 @@ import com.androiddevs.data.collections.User
 import org.litote.kmongo.contains
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.eq
+import org.litote.kmongo.not
 import org.litote.kmongo.reactivestreams.KMongo
+import org.litote.kmongo.setValue
 
 private val client = KMongo.createClient().coroutine
 private val database = client.getDatabase("NotesDatabase")
@@ -27,4 +29,27 @@ suspend fun checkPasswordForEnail(email: String, passwordToCheck: String) : Bool
 
 suspend fun getNotesForUser(email: String): List<Note> {
     return notes.find(Note::owners contains email).toList()
+}
+
+suspend fun saveNote(note: Note): Boolean {
+    val noteExist = notes.findOneById(note.id) != null
+    return if(noteExist){
+        notes.updateOneById(note.id, note).wasAcknowledged()
+    }else{
+        notes.insertOne(note).wasAcknowledged()
+    }
+}
+
+suspend fun deleteNote(email: String, noteId: String): Boolean {
+    val note = notes.findOne(Note::id eq noteId, Note::owners contains email)
+    note?.let {
+        if(note.owners.size > 1){
+            // the note has multiple owners, so just delete the email from owners
+            val newOwners = note.owners - email
+            val updateResult = notes.updateOne(Note::id eq note.id, setValue(Note::owners, newOwners))
+            return updateResult.wasAcknowledged()
+        }else{
+            return notes.deleteOneById(note.id).wasAcknowledged()
+        }
+    } ?: return false
 }
