@@ -2,6 +2,7 @@ package com.androiddevs
 
 import com.androiddevs.data.collections.User
 import com.androiddevs.data.registerUser
+import com.androiddevs.routes.loginRoute
 import com.androiddevs.routes.registerRoute
 import io.ktor.application.*
 import io.ktor.features.*
@@ -21,6 +22,7 @@ fun Application.module(testing: Boolean = false) {
     install(CallLogging)            // Log all our http requests and the responses
     install(Routing) {   // Can define URL endpoints. REST API
         registerRoute()
+        loginRoute()
     }
     install(ContentNegotiation) {   // Make sure which type the server can respond with
         gson {
