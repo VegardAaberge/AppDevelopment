@@ -20,14 +20,26 @@ class NoteRepository @Inject constructor(
 ) {
     suspend fun register(email: String, password: String) = withContext(Dispatchers.IO) {
         try {
-            val response = noteApi.register(AccountRequest(email, password))
-            if(response.isSuccessful){
-                Resource.success(response.body()?.message)
-            }else {
-                Resource.error(response.message(), null)
-            }
+            Authenticate(email, password)
         }catch (e: Exception) {
             Resource.error("Couldn't connect to the service, check your internet connection", null)
+        }
+    }
+
+    suspend fun login(email: String, password: String) = withContext(Dispatchers.IO) {
+        try {
+            Authenticate(email, password)
+        }catch (e: Exception) {
+            Resource.error("Couldn't connect to the service, check your internet connection", null)
+        }
+    }
+
+    private suspend fun Authenticate(email: String, password: String) : Resource<String> {
+        val response = noteApi.login(AccountRequest(email, password))
+        if(response.isSuccessful && response.body()!!.successful){
+            return Resource.success(response.body()?.message)
+        }else {
+            return Resource.error(response.body()?.message ?: response.message(), null)
         }
     }
 }
