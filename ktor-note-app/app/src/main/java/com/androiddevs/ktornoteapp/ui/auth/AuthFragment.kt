@@ -7,13 +7,14 @@ import android.view.View
 import androidx.core.content.edit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.androiddevs.ktornoteapp.R
 import com.androiddevs.ktornoteapp.data.remote.BasicAuthInterceptor
 import com.androiddevs.ktornoteapp.other.Constants.KEY_LOGGED_IN_EMAIL
 import com.androiddevs.ktornoteapp.other.Constants.KEY_PASSWORD
+import com.androiddevs.ktornoteapp.other.Constants.NO_EMAIL
+import com.androiddevs.ktornoteapp.other.Constants.NO_PASSWORD
 import com.androiddevs.ktornoteapp.other.Resource
 import com.androiddevs.ktornoteapp.other.Status
 import com.androiddevs.ktornoteapp.ui.BaseFragment
@@ -37,6 +38,10 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if(isLoggedIn()){
+            authenticateApi()
+            redirectLogin()
+        }
 
         requireActivity().requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
         subscribeToObservers()
@@ -66,14 +71,20 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
                 putString(KEY_PASSWORD, currentPassword)
                 apply()
             }
-            basicAuthInterceptor.email = currentEmail ?: ""
-            basicAuthInterceptor.password = currentPassword ?: ""
+
+            authenticateApi()
 
             redirectLogin()
         }
         subscribeToObserver(viewModel.registerStatus){ result ->
             showSnackbar(result.data ?: "Successfully registered an account")
         }
+    }
+
+    private fun authenticateApi()
+    {
+        basicAuthInterceptor.email = currentEmail ?: ""
+        basicAuthInterceptor.password = currentPassword ?: ""
     }
 
     private fun redirectLogin() {
@@ -86,25 +97,31 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
         )
     }
 
+    private fun isLoggedIn() : Boolean {
+        currentEmail = sharedPref.getString(KEY_LOGGED_IN_EMAIL, NO_EMAIL) ?: NO_EMAIL
+        currentPassword = sharedPref.getString(KEY_PASSWORD, NO_PASSWORD) ?: NO_PASSWORD
+        return currentEmail != NO_EMAIL && currentPassword != NO_PASSWORD
+    }
+
 
     private fun subscribeToObserver(
         liveDataItem: LiveData<Resource<String>>,
         successAction: (Resource<String>) -> Unit,
     ){
-        liveDataItem.observe(viewLifecycleOwner, Observer { result ->
-            when(result.status){
+        liveDataItem.observe(viewLifecycleOwner) { result ->
+            when (result.status) {
                 Status.SUCCESS -> {
                     registerProgressBar.visibility = View.GONE
                     successAction(result)
                 }
                 Status.ERROR -> {
                     registerProgressBar.visibility = View.GONE
-                    showSnackbar(result.message ?: "An unknown error occured")
+                    showSnackbar(result.message ?: "An unknown error occurred")
                 }
                 Status.LOADING -> {
                     registerProgressBar.visibility = View.VISIBLE
                 }
             }
-        })
+        }
     }
 }
