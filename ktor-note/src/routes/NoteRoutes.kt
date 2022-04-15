@@ -1,10 +1,9 @@
 package com.androiddevs.routes
 
+import com.androiddevs.data.*
 import com.androiddevs.data.collections.Note
-import com.androiddevs.data.deleteNote
-import com.androiddevs.data.getNotesForUser
+import com.androiddevs.data.requests.AddOwnerRequest
 import com.androiddevs.data.requests.DeleteNoteRequest
-import com.androiddevs.data.saveNote
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.http.HttpStatusCode.Companion.BadRequest
@@ -22,6 +21,34 @@ fun Route.noteRoutes() {
 
                 val notes = getNotesForUser(email)
                 call.respond(OK, notes)
+            }
+        }
+    }
+    route("/addOwnerToNote") {
+        authenticate {
+            post {
+                val request = try {
+                    call.receive<AddOwnerRequest>()
+                }catch (e: ContentTransformationException){
+                    call.respond(BadRequest)
+                    return@post
+                }
+
+                if(!checkIfUserExists(request.owner)){
+                    call.respond(OK, "No user with this email exist")
+                    return@post
+                }
+
+                if(isOwnerOfNote(request.noteID, request.owner)){
+                    call.respond(OK, "This user is already an owner of this note")
+                    return@post
+                }
+
+                if(addOwnerToNote(request.noteID, request.owner)){
+                    call.respond(OK, "${request.owner} can now see this note")
+                }else{
+                    call.respond(Conflict)
+                }
             }
         }
     }
