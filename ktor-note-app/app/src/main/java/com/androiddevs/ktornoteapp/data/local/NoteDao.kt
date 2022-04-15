@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 interface NoteDao {
 
     @Insert(onConflict = REPLACE)
-    suspend fun insertNote(noteDao: NoteDao)
+    suspend fun insertNote(note: Note)
 
     @Query("DELETE FROM notes WHERE id = :noteId")
     suspend fun deleteNoteById(noteId: String)
