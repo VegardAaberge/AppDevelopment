@@ -18,12 +18,14 @@ import com.androiddevs.ktornoteapp.other.Status
 import com.androiddevs.ktornoteapp.ui.BaseFragment
 import com.androiddevs.ktornoteapp.ui.dialogs.ColorPickerDialogFragment
 import com.androiddevs.ktornoteapp.ui.notes.NotesViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_add_edit_note.*
 import java.util.*
 import javax.inject.Inject
 
 const val FRAGMENT_TAG = "AddEditNoteFragment"
 
+@AndroidEntryPoint
 class AddEditNoteFragment : BaseFragment(R.layout.fragment_add_edit_note) {
 
     private val viewModel: AddEditNoteViewModel by viewModels()
