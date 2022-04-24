@@ -1,16 +1,22 @@
 package com.androiddevs.ktornoteapp.repositories
 
 import android.app.Application
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.androiddevs.ktornoteapp.data.local.NoteDao
+import com.androiddevs.ktornoteapp.data.local.entities.LocallyDeletedNoteID
 import com.androiddevs.ktornoteapp.data.local.entities.Note
 import com.androiddevs.ktornoteapp.data.remote.NoteApi
 import com.androiddevs.ktornoteapp.data.remote.requests.AccountRequest
+import com.androiddevs.ktornoteapp.data.remote.requests.DeleteNoteRequest
 import com.androiddevs.ktornoteapp.other.Resource
 import com.androiddevs.ktornoteapp.other.checkForInternetConnection
 import com.androiddevs.ktornoteapp.other.networkBoundResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,6 +43,45 @@ class NoteRepository @Inject constructor(
         notes.forEach { insertNote(it) }
     }
 
+    suspend fun deleteNote(noteID: String){
+        val response = try{
+            noteApi.deleteNote(DeleteNoteRequest(noteID))
+        }catch (e: Exception){
+            null
+        }
+
+        noteDao.deleteNoteById(noteID)
+        if(response == null || !response.isSuccessful){
+            noteDao.insertLocallyDeleteNoteID(LocallyDeletedNoteID(noteID))
+        }else{
+            deleteLocallyDeletedNoteID(noteID)
+        }
+    }
+
+    suspend fun deleteLocallyDeletedNoteID(deletedNoteID: String){
+        noteDao.deleteLocallyDeletedNoteID(deletedNoteID)
+    }
+
+    private var curNotesResponse: Response<List<Note>>? = null
+
+    suspend fun syncNotes() {
+        val locallyDeletedNoteID = noteDao.getAllLocallyDeletedNoteID()
+        locallyDeletedNoteID.forEach { id ->
+            deleteNote(id.deletedNoteID)
+        }
+
+        val unsyncedNotes = noteDao.getAllUnsyncedNotes()
+        unsyncedNotes.forEach { note ->
+            insertNote(note)
+        }
+
+        curNotesResponse = noteApi.getNotes()
+        curNotesResponse?.body()?.let { notes ->
+            noteDao.deleteAllNotes()
+            insertNotes(notes.onEach { note -> note.isSynced })
+        }
+    }
+
     suspend fun getNoteById(noteID: String) = noteDao.getNoteById(noteID)
 
     fun getAllNotes(): Flow<Resource<List<Note>>> {
@@ -45,11 +90,12 @@ class NoteRepository @Inject constructor(
                 noteDao.getAllNotes()
             },
             fetch = {
-                noteApi.getNotes()
+                syncNotes()
+                curNotesResponse
             },
             saveFetchResult = { response ->
-                response.body()?.let{
-                    insertNotes(it)
+                response?.body()?.let{
+                    insertNotes(it.onEach { note -> note.isSynced = true })
                 }
             },
             shouldFetch = {
