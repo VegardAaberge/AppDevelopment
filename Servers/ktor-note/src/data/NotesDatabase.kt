@@ -2,10 +2,10 @@ package com.androiddevs.data
 
 import com.androiddevs.data.collections.Note
 import com.androiddevs.data.collections.User
+import com.androiddevs.security.checkHashForPassword
 import org.litote.kmongo.contains
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.eq
-import org.litote.kmongo.not
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.setValue
 
@@ -23,8 +23,8 @@ suspend fun checkIfUserExists(email: String) : Boolean {
 }
 
 suspend fun checkPasswordForEnail(email: String, passwordToCheck: String) : Boolean {
-    val actualPassword = users.findOne(User::email eq email)?.password ?: return false
-    return actualPassword == passwordToCheck
+    val passwordHashWithSalt = users.findOne(User::email eq email)?.password ?: return false
+    return checkHashForPassword(passwordToCheck, passwordHashWithSalt)
 }
 
 suspend fun getNotesForUser(email: String): List<Note> {

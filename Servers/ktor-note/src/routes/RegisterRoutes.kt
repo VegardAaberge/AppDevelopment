@@ -5,6 +5,7 @@ import com.androiddevs.data.collections.User
 import com.androiddevs.data.registerUser
 import com.androiddevs.data.requests.AccountRequest
 import com.androiddevs.data.responses.SimpleResponse
+import com.androiddevs.security.getHashWithSalt
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.request.*
@@ -22,7 +23,7 @@ fun Route.registerRoute(){
             }
             val userExist = checkIfUserExists(request.email)
             if(!userExist){
-                val newUser = User(request.email, request.password)
+                val newUser = User(request.email, getHashWithSalt(request.password))
                 if(registerUser(newUser)){
                     call.respond(HttpStatusCode.OK, SimpleResponse(true, "Successfully created an account"))
                 }else{

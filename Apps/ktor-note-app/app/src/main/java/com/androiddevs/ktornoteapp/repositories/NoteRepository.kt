@@ -12,6 +12,7 @@ import com.androiddevs.ktornoteapp.data.remote.NoteApi
 import com.androiddevs.ktornoteapp.data.remote.requests.AccountRequest
 import com.androiddevs.ktornoteapp.data.remote.requests.AddOwnerRequest
 import com.androiddevs.ktornoteapp.data.remote.requests.DeleteNoteRequest
+import com.androiddevs.ktornoteapp.data.remote.responses.SimpleResponse
 import com.androiddevs.ktornoteapp.other.Resource
 import com.androiddevs.ktornoteapp.other.checkForInternetConnection
 import com.androiddevs.ktornoteapp.other.networkBoundResource
@@ -110,7 +111,8 @@ class NoteRepository @Inject constructor(
 
     suspend fun register(email: String, password: String) = withContext(Dispatchers.IO) {
         try {
-            Authenticate(email, password)
+            val response = noteApi.register(AccountRequest(email, password))
+            ApiResponse(response)
         }catch (e: Exception) {
             Resource.error("Couldn't connect to the service, check your internet connection", null)
         }
@@ -118,32 +120,28 @@ class NoteRepository @Inject constructor(
 
     suspend fun login(email: String, password: String) = withContext(Dispatchers.IO) {
         try {
-            Authenticate(email, password)
+            val response = noteApi.login(AccountRequest(email, password))
+            ApiResponse(response)
         }catch (e: Exception) {
             Resource.error("Couldn't connect to the service, check your internet connection", null)
-        }
-    }
-
-    private suspend fun Authenticate(email: String, password: String) : Resource<String> {
-        val response = noteApi.login(AccountRequest(email, password))
-        if(response.isSuccessful && response.body()!!.successful){
-            return Resource.success(response.body()?.message)
-        }else {
-            return Resource.error(response.body()?.message ?: response.message(), null)
         }
     }
 
     suspend fun addOwnerToNote(owner: String, noteID: String) = withContext(Dispatchers.IO) {
         try {
             val response = noteApi.addOwnerToNote(AddOwnerRequest(owner, noteID))
-            if(response.isSuccessful && response.body()!!.successful){
-                Resource.success(response.body()?.message)
-            }else {
-                Resource.error(response.body()?.message ?: response.message(), null)
-            }
+            ApiResponse(response)
+
         }catch (e: Exception) {
-            Log.e("KtorNoteApp", e.stackTraceToString())
             Resource.error("Couldn't connect to the service: ${e.message}", null)
+        }
+    }
+
+    private fun ApiResponse(response: Response<SimpleResponse>) : Resource<String> {
+        if(response.isSuccessful && response.body()!!.successful){
+            return Resource.success(response.body()?.message)
+        }else {
+            return Resource.error(response.body()?.message ?: response.message(), null)
         }
     }
 }
