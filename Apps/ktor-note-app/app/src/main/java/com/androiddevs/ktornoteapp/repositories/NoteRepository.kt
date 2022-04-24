@@ -1,6 +1,7 @@
 package com.androiddevs.ktornoteapp.repositories
 
 import android.app.Application
+import android.util.Log
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -9,6 +10,7 @@ import com.androiddevs.ktornoteapp.data.local.entities.LocallyDeletedNoteID
 import com.androiddevs.ktornoteapp.data.local.entities.Note
 import com.androiddevs.ktornoteapp.data.remote.NoteApi
 import com.androiddevs.ktornoteapp.data.remote.requests.AccountRequest
+import com.androiddevs.ktornoteapp.data.remote.requests.AddOwnerRequest
 import com.androiddevs.ktornoteapp.data.remote.requests.DeleteNoteRequest
 import com.androiddevs.ktornoteapp.other.Resource
 import com.androiddevs.ktornoteapp.other.checkForInternetConnection
@@ -57,6 +59,8 @@ class NoteRepository @Inject constructor(
             deleteLocallyDeletedNoteID(noteID)
         }
     }
+
+    fun observeNoteById(noteID: String) = noteDao.observeNoteById(noteID)
 
     suspend fun deleteLocallyDeletedNoteID(deletedNoteID: String){
         noteDao.deleteLocallyDeletedNoteID(deletedNoteID)
@@ -126,6 +130,20 @@ class NoteRepository @Inject constructor(
             return Resource.success(response.body()?.message)
         }else {
             return Resource.error(response.body()?.message ?: response.message(), null)
+        }
+    }
+
+    suspend fun addOwnerToNote(owner: String, noteID: String) = withContext(Dispatchers.IO) {
+        try {
+            val response = noteApi.addOwnerToNote(AddOwnerRequest(owner, noteID))
+            if(response.isSuccessful && response.body()!!.successful){
+                Resource.success(response.body()?.message)
+            }else {
+                Resource.error(response.body()?.message ?: response.message(), null)
+            }
+        }catch (e: Exception) {
+            Log.e("KtorNoteApp", e.stackTraceToString())
+            Resource.error("Couldn't connect to the service: ${e.message}", null)
         }
     }
 }
