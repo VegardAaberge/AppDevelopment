@@ -14,7 +14,7 @@ object Constants {
 
     const val ENCRYPTED_SHARED_PREF_NAME = "enc_shared_pref"
 
-    const val BASE_URL = "https://10.0.2.2:8002" // use ipconfig to find IPv6 address,
+    const val BASE_URL = "https://107.152.37.100:8002" // use ipconfig to find IPv6 address,
 
     val IGNORE_AUTH_URLS = listOf("/login", "/register")
 }
