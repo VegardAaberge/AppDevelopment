@@ -1,0 +1,1 @@
+nohup java -jar target/demo-0.0.1-SNAPSHOT.jar --spring.config.location=file:src/main/resources/server.properties >/dev/null 2>&1 &
