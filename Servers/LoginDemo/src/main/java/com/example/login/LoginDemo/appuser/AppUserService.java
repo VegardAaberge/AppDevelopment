@@ -37,7 +37,21 @@ public class AppUserService implements UserDetailsService {
                 .isPresent();
 
         if(userExist){
-            throw new IllegalStateException("email already taken");
+            if(appUser.isEnabled()){
+                throw new IllegalStateException("email already taken");
+            }
+
+            String email = appUser.getEmail();
+            AppUser currentAppUser = appUserRepository.findByEmail(email)
+                    .orElseThrow(() ->
+                            new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email))
+                    );
+
+            if(!currentAppUser.isRequestEqual(appUser)){
+                throw new IllegalStateException("the user is not the same");
+            }
+
+            appUser = currentAppUser;
         }
 
         String encodedPassword = bCryptPasswordEncoder.encode(appUser.getPassword());
@@ -56,8 +70,6 @@ public class AppUserService implements UserDetailsService {
         );
 
         confirmationTokenService.saveConfirmationToken(confirmationToken);
-
-        // TODO send email
 
         return token;
     }
