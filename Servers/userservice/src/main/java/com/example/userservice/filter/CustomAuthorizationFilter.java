@@ -6,7 +6,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.userservice.util.TokenUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +30,11 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
+
+    private final Environment env;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -42,7 +48,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 try {
                     String token = authorizationHeader.substring("Bearer ".length());
 
-                    Algorithm algorithm = TokenUtility.getAlgorithm();
+                    Algorithm algorithm = TokenUtility.getAlgorithm(env);
                     DecodedJWT decodedJWT = TokenUtility.getDecodedJWT(algorithm, token);
 
                     TokenUtility.setNewAuthenticationToken(decodedJWT);

@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.userservice.model.AppRole;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,8 +23,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public final class TokenUtility {
 
-    public static Algorithm getAlgorithm(){
-        return Algorithm.HMAC256("secret".getBytes()); // Use utility class and make it secret
+    public static Algorithm getAlgorithm(Environment env){
+        return Algorithm.HMAC256(env.getProperty("playgroup.app.jwtSecret").getBytes());
     }
 
     public static DecodedJWT getDecodedJWT(Algorithm algorithm, String refresh_token){

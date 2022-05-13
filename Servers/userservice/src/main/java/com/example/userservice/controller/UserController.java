@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.Role;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,6 +40,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final Environment env;
 
     @GetMapping("/users")
     public ResponseEntity<List<AppUser>> getUsers(){
@@ -68,7 +70,7 @@ public class UserController {
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             try {
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
-                Algorithm algorithm = TokenUtility.getAlgorithm();
+                Algorithm algorithm = TokenUtility.getAlgorithm(env);
                 DecodedJWT decodedJWT = TokenUtility.getDecodedJWT(algorithm, refresh_token);
 
                 // Get the username and authorities
