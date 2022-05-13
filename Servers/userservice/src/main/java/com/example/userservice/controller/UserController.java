@@ -8,6 +8,7 @@ import com.example.userservice.model.AppRole;
 import com.example.userservice.model.AppUser;
 import com.example.userservice.request.RoleToUserForm;
 import com.example.userservice.service.UserService;
+import com.example.userservice.util.TokenUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,26 +67,22 @@ public class UserController {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             try {
-                // Get the decodedJWT
                 String refresh_token = authorizationHeader.substring("Bearer ".length());
-                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes()); // Use utility class and make it secret
-                JWTVerifier verifier = JWT.require(algorithm).build();
-                DecodedJWT decodedJWT = verifier.verify(refresh_token);
+                Algorithm algorithm = TokenUtility.getAlgorithm();
+                DecodedJWT decodedJWT = TokenUtility.getDecodedJWT(algorithm, refresh_token);
 
                 // Get the username and authorities
                 String username = decodedJWT.getSubject();
                 AppUser user = userService.getUser(username);
 
-                String access_token = JWT.create()
-                        .withSubject(user.getUsername())
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-                        .withIssuer(request.getRequestURL().toString())
-                        .withClaim("roles", user.getRoles().stream().map(AppRole::getName).collect(Collectors.toList()))
-                        .sign(algorithm);
+                Map<String, String> tokens = TokenUtility.getAuthorizationToken(
+                        request,
+                        username,
+                        user.getRoles().stream().map(AppRole::getName).collect(Collectors.toList()),
+                        algorithm,
+                        refresh_token
+                );
 
-                Map<String, String> tokens = new HashMap<>();
-                tokens.put("refresh_token", refresh_token);
-                tokens.put("access_token", access_token);
                 response.setContentType(APPLICATION_JSON_VALUE);
                 new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 
