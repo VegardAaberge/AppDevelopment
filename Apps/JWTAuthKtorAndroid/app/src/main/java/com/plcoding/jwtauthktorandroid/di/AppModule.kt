@@ -32,7 +32,7 @@ class AppModule {
             .addInterceptor(interceptor)
             .build()
         return Retrofit.Builder()
-            .baseUrl("http://192.168.50.91:8080/")
+            .baseUrl("http://vegardaaberge.no:8080")
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
