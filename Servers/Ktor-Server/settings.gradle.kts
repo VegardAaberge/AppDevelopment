@@ -1,0 +1,1 @@
+rootProject.name = "no.vegardaaberge.myplaygroup-server"
