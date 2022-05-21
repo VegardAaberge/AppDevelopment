@@ -22,7 +22,7 @@ public class RoomController {
     private MessageRepository messageRepository;
     private final ConcurrentHashMap<String, Member> members = new ConcurrentHashMap<>();
 
-    private onJoin(String username, String sessionId, WebSocketSession socket){
+    private void onJoin(String username, String sessionId, WebSocketSession socket){
         if(members.containsKey(username)){
             throw new MemberAlreadyException();
         }
@@ -30,7 +30,7 @@ public class RoomController {
                 username,
                 sessionId,
                 socket
-        );
+        ));
     }
 
     private void sendMessage(String senderUsername, String message) {
@@ -60,5 +60,6 @@ public class RoomController {
         if(members.containsKey(username)){
             members.remove(username);
         }
+        return "";
     }
 }
