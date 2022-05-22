@@ -10,6 +10,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketMessageConfig implements WebSocketMessageBrokerConfigurer {
 
+
+    // CHAT
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
@@ -22,7 +24,8 @@ public class WebSocketMessageConfig implements WebSocketMessageBrokerConfigurer 
         registry.setUserDestinationPrefix("/user");
     }
 
-    /*
+/*
+    // Greeting
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/stomp-endpoint").withSockJS();

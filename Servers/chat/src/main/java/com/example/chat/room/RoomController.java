@@ -2,29 +2,34 @@ package com.example.chat.room;
 
 import com.example.chat.data.MessageRepository;
 import com.example.chat.data.model.Message;
-import lombok.Getter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.webjars.NotFoundException;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
-@RequestMapping("chat")
-@RequiredArgsConstructor
+@RequestMapping(name = "/messages")
 public class RoomController {
+
+    @Autowired
     private MessageRepository messageRepository;
+
     private final ConcurrentHashMap<String, Member> members = new ConcurrentHashMap<>();
 
-    private void onJoin(String username, String sessionId, WebSocketSession socket){
-        if(members.containsKey(username)){
-            throw new MemberAlreadyException();
+    public void onJoin(String username, String sessionId, WebSocketSession socket){
+
+        if(members.containsKey(username)) {
+            throw new MemberAlreadyExistsException();
         }
         members.put(username, new Member(
                 username,
@@ -33,8 +38,8 @@ public class RoomController {
         ));
     }
 
-    private void sendMessage(String senderUsername, String message) {
-        members.values().forEach(member -> {
+    public void sendMessage(String senderUsername, String message) {
+        members.values().forEach( member -> {
             Message messageEntity = new Message(
                     message,
                     senderUsername,
@@ -42,8 +47,10 @@ public class RoomController {
             );
             messageRepository.save(messageEntity);
 
+            Gson gson = new Gson();
+            String parsedMessage = gson.toJson(messageEntity);
             try {
-                member.getSocket().sendMessage(new TextMessage(messageEntity.toString()));
+                member.getSocket().sendMessage(new TextMessage(parsedMessage));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -55,11 +62,10 @@ public class RoomController {
         return messageRepository.findAllOrderByTimestampDesc();
     }
 
-    private String tryDisconnect(String username) throws IOException {
-        members.get(username).getSocket().close();
-        if(members.containsKey(username)){
+    public void tryDisconnect(String username){
+        Member member = members.get(username);
+        if(member != null && members.containsKey(username) && member.getSocket() != null){
             members.remove(username);
         }
-        return "";
     }
 }
