@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -37,7 +38,6 @@ public class MessageSocketHandler extends TextWebSocketHandler {
                 username,
                 message.getPayload()
         );
-        log.info("Received message done");
     }
 
 
@@ -53,7 +53,14 @@ public class MessageSocketHandler extends TextWebSocketHandler {
                 session.getId(),
                 session
         );
-        log.info("Received connection done");
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        log.info("Received close request ");
+        String username = getUsernameFromSession(session);
+
+        roomController.tryDisconnect(username);
     }
 
     private String getUsernameFromSession(WebSocketSession session){

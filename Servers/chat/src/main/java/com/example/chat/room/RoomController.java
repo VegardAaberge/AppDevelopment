@@ -41,14 +41,15 @@ public class RoomController {
     }
 
     public void sendMessage(String senderUsername, String message) {
-        members.values().forEach( member -> {
-            Message messageEntity = new Message(
-                    message,
-                    senderUsername,
-                    System.currentTimeMillis()
-            );
-            messageRepository.save(messageEntity);
 
+        Message messageEntity = new Message(
+                message,
+                senderUsername,
+                System.currentTimeMillis()
+        );
+        messageRepository.save(messageEntity);
+
+        members.values().forEach( member -> {
             Gson gson = new Gson();
             String parsedMessage = gson.toJson(messageEntity);
             try {
