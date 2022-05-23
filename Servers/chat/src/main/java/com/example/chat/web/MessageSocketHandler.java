@@ -3,6 +3,7 @@ package com.example.chat.web;
 import com.example.chat.room.Member;
 import com.example.chat.room.MemberAlreadyExistsException;
 import com.example.chat.room.RoomController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class MessageSocketHandler extends TextWebSocketHandler {
 
@@ -28,12 +30,14 @@ public class MessageSocketHandler extends TextWebSocketHandler {
     public void handleTextMessage(WebSocketSession session, TextMessage message)
             throws InterruptedException, IOException {
 
+        log.info("Received message " + message.getPayload());
         String username = getUsernameFromSession(session);
 
         roomController.sendMessage(
                 username,
                 message.getPayload()
         );
+        log.info("Received message done");
     }
 
 
@@ -41,6 +45,7 @@ public class MessageSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
+        log.info("Received connection request " + session.getUri());
         String username = getUsernameFromSession(session);
 
         roomController.onJoin(
@@ -48,6 +53,7 @@ public class MessageSocketHandler extends TextWebSocketHandler {
                 session.getId(),
                 session
         );
+        log.info("Received connection done");
     }
 
     private String getUsernameFromSession(WebSocketSession session){

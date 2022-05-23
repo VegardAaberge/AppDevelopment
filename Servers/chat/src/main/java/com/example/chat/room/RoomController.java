@@ -5,6 +5,7 @@ import com.example.chat.data.model.Message;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +18,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @RestController
-@RequestMapping(name = "/messages")
+@RequestMapping(path = "messages")
 public class RoomController {
 
     @Autowired
@@ -59,10 +61,12 @@ public class RoomController {
 
     @GetMapping
     private List<Message> getAllMessages(){
+        log.info("Get All Messages");
         return messageRepository.findAllOrderByTimestampDesc();
     }
 
     public void tryDisconnect(String username){
+        log.info("Disconnect " + username);
         Member member = members.get(username);
         if(member != null && members.containsKey(username) && member.getSocket() != null){
             members.remove(username);
