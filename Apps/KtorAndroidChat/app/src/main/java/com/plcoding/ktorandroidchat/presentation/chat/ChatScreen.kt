@@ -28,7 +28,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.plcoding.ktorandroidchat.presentation.chat.components.ChatMessage
-import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable

@@ -1,19 +1,20 @@
 package com.plcoding.ktorandroidchat.di
 
-import com.plcoding.ktorandroidchat.data.renote.ChatSocketService
-import com.plcoding.ktorandroidchat.data.renote.ChatSocketServiceImpl
-import com.plcoding.ktorandroidchat.data.renote.MessageService
-import com.plcoding.ktorandroidchat.data.renote.MessageServiceImpl
+import com.plcoding.ktorandroidchat.data.renote.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
-import io.ktor.client.features.websocket.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.serialization.kotlinx.json.*
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -26,15 +27,30 @@ class AppModule {
         return HttpClient(CIO){
             install(Logging)
             install(WebSockets)
-            install(JsonFeature) {
-                serializer = KotlinxSerializer()
+            install(ContentNegotiation) {
+                json()
             }
         }
     }
 
+    @Singleton
+    @Provides
+    fun provideMyPlaygroupApi() : MyApi {
+        val client = OkHttpClient
+            .Builder()
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(MessageService.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+            .create(MyApi::class.java)
+    }
+
     @Provides
     @Singleton
-    fun provideMessageService(client: HttpClient): MessageService {
+    fun provideMessageService(client: MyApi): MessageService {
         return MessageServiceImpl(client)
     }
 

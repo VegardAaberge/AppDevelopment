@@ -1,20 +1,22 @@
 package com.plcoding.ktorandroidchat.data.renote
 
-import com.plcoding.ktorandroidchat.data.renote.dto.MessageDto
 import com.plcoding.ktorandroidchat.domain.model.Message
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import java.lang.Exception
 
 class MessageServiceImpl(
-    private val client: HttpClient
+    private val myApi: MyApi
 ) : MessageService {
 
     override suspend fun getAllMessages(): List<Message> {
         return try {
-            client.get<List<MessageDto>>(MessageService.Endpoints.GetAllMessages.url)
-                .map { it.toMessage() }
+            val messageResponse = myApi.getMessages()
+            return messageResponse.map { it.toMessage() }
         }catch (e: Exception) {
+            e.printStackTrace()
             emptyList()
         }
     }
