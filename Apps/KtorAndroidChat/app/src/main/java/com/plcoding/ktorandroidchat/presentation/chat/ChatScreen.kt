@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.plcoding.ktorandroidchat.presentation.chat.components.ChatMessage
 import io.ktor.http.cio.websocket.*
 import kotlinx.coroutines.flow.collectLatest
 
@@ -72,61 +73,11 @@ fun ChatScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
             items(state.messages){ message ->
-                val isOwnMessage = message.username == username
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = if(isOwnMessage) {
-                        Alignment.CenterEnd
-                    }
-                    else Alignment.CenterStart
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .width(200.dp)
-                            .drawBehind {
-                                val cornerRadius = 10.dp.toPx()
-                                val triangleHeight = 20.dp.toPx()
-
-                                val triangleWidth =
-                                    if (isOwnMessage) -25.dp.toPx() else 25.dp.toPx()
-                                val triangleStartX = if (isOwnMessage) size.width else 0f
-
-                                val trianglePath = Path().apply {
-                                    moveTo(triangleStartX, size.height - cornerRadius)
-                                    lineTo(triangleStartX, size.height + triangleHeight)
-                                    lineTo(
-                                        triangleStartX + triangleWidth,
-                                        size.height - cornerRadius
-                                    )
-                                    close()
-                                }
-                                drawPath(
-                                    path = trianglePath,
-                                    color = if (isOwnMessage) Color.Green else Color.DarkGray
-                                )
-                            }
-                            .background(
-                                color = if (isOwnMessage) Color.Green else Color.DarkGray,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .padding(8.dp)
-                    ) {
-                        Text(
-                            text = message.username,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Text(
-                            text = message.text,
-                            color = Color.White
-                        )
-                        Text(
-                            text = message.formattedTime,
-                            color = Color.White,
-                            modifier = Modifier.align(Alignment.End)
-                        )
-                    }
-                }
+                ChatMessage(
+                    username = username,
+                    message = message,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
