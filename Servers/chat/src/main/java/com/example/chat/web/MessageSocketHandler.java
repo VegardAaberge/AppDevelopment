@@ -1,8 +1,10 @@
 package com.example.chat.web;
 
+import com.example.chat.data.MessageRequest;
 import com.example.chat.room.Member;
 import com.example.chat.room.MemberAlreadyExistsException;
 import com.example.chat.room.RoomController;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -34,9 +36,12 @@ public class MessageSocketHandler extends TextWebSocketHandler {
         log.info("Received message " + message.getPayload());
         String username = getUsernameFromSession(session);
 
+        Gson gson = new Gson();
+        MessageRequest request = gson.fromJson(message.getPayload(), MessageRequest.class);
+
         roomController.sendMessage(
                 username,
-                message.getPayload()
+                request
         );
     }
 

@@ -7,9 +7,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class MessageRequest {
-    private String username;
     private String message;
-    private Long timestamp;
 }

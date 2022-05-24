@@ -1,11 +1,10 @@
 package com.example.chat.room;
 
 import com.example.chat.data.MessageRepository;
+import com.example.chat.data.MessageRequest;
 import com.example.chat.data.model.Message;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.webjars.NotFoundException;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,10 +39,10 @@ public class RoomController {
         ));
     }
 
-    public void sendMessage(String senderUsername, String message) {
+    public void sendMessage(String senderUsername, MessageRequest message) {
 
         Message messageEntity = new Message(
-                message,
+                message.getMessage(),
                 senderUsername,
                 System.currentTimeMillis()
         );

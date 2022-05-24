@@ -1,6 +1,7 @@
 package com.plcoding.ktorandroidchat.data.renote
 
 import com.plcoding.ktorandroidchat.data.renote.dto.MessageDto
+import com.plcoding.ktorandroidchat.data.renote.dto.MessageRequest
 import com.plcoding.ktorandroidchat.domain.model.Message
 import com.plcoding.ktorandroidchat.util.Resource
 import io.ktor.client.*
@@ -10,6 +11,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class ChatSocketServiceImpl(
@@ -35,7 +37,8 @@ class ChatSocketServiceImpl(
 
     override suspend fun sendMessage(message: String) {
         try {
-            socket?.send(Frame.Text(message))
+            val requestMessage = Json.encodeToString(MessageRequest(message))
+            socket?.send(Frame.Text(requestMessage))
         }catch (e: Exception){
             e.printStackTrace()
         }
