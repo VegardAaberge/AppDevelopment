@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    @Query("FROM Message ORDER BY timestamp DESC")
+    @Query("FROM Message ORDER BY created DESC")
     List<Message> findAllOrderByTimestampDesc();
 }

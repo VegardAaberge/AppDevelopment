@@ -7,20 +7,21 @@ import java.util.*
 
 @Serializable
 data class MessageDto (
-    val text: String,
-    val timestamp: Long,
-    val username: String,
-    val id: Long
+    val id: Long,
+    val message: String,
+    val profileName: String?,
+    val created: Long,
+    val createdBy: String
 ){
     fun toMessage(): Message {
-        val date = Date(timestamp)
+        val date = Date(created)
         val formatedDate = DateFormat
             .getDateInstance(DateFormat.DEFAULT)
             .format(date)
         return Message(
-            text = text,
+            text = message,
             formattedTime = formatedDate,
-            username = username,
+            username = createdBy,
         )
     }
 }

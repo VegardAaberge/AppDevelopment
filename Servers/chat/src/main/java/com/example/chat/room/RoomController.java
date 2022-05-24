@@ -4,6 +4,7 @@ import com.example.chat.data.MessageRepository;
 import com.example.chat.data.model.Message;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,7 @@ public class RoomController {
         messageRepository.save(messageEntity);
 
         members.values().forEach( member -> {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder().serializeNulls().create();
             String parsedMessage = gson.toJson(messageEntity);
             try {
                 member.getSocket().sendMessage(new TextMessage(parsedMessage));

@@ -24,13 +24,14 @@ public class Message {
     )
     private Long id;
 
-    private String text;
-    private String username;
-    private Long timestamp;
+    private String message;
+    private String createdBy;
+    private Long created;
+    private String profileName;
 
-    public Message(String text, String username, Long timestamp) {
-        this.text = text;
-        this.username = username;
-        this.timestamp = timestamp;
+    public Message(String message, String createdBy, Long created) {
+        this.message = message;
+        this.createdBy = createdBy;
+        this.created = created;
     }
 }
