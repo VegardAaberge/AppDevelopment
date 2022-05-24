@@ -3,6 +3,9 @@ package com.example.chat.room;
 import com.example.chat.data.MessageRepository;
 import com.example.chat.data.MessageRequest;
 import com.example.chat.data.model.Message;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.webjars.NotFoundException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,15 +49,18 @@ public class RoomController {
         Message messageEntity = new Message(
                 message.getMessage(),
                 senderUsername,
-                System.currentTimeMillis()
+                LocalDateTime.now()
         );
         messageRepository.save(messageEntity);
 
+        MessageResponse messageResponse = messageRepository.findResponseById(messageEntity.getId())
+                .orElseThrow(() -> new NotFoundException("Message not found"));
+
         members.values().forEach( member -> {
-            Gson gson = new GsonBuilder().serializeNulls().create();
-            String parsedMessage = gson.toJson(messageEntity);
             try {
-                member.getSocket().sendMessage(new TextMessage(parsedMessage));
+                ObjectWriter ow = new ObjectMapper().findAndRegisterModules().writer().withDefaultPrettyPrinter();
+                String json = ow.writeValueAsString(messageResponse);
+                member.getSocket().sendMessage(new TextMessage(json));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -60,7 +68,7 @@ public class RoomController {
     }
 
     @GetMapping
-    private List<Message> getAllMessages(){
+    private List<MessageResponse> getAllMessages(){
         log.info("Get All Messages");
         return messageRepository.findAllOrderByTimestampDesc();
     }

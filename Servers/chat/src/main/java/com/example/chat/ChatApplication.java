@@ -7,6 +7,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.time.LocalDateTime;
+
 @SpringBootApplication
 public class ChatApplication {
 
@@ -20,7 +22,7 @@ public class ChatApplication {
 			messageRepository.save(new Message(
 					"First message",
 					"Admin",
-					System.currentTimeMillis()
+					LocalDateTime.now()
 			));
 		};
 	}
