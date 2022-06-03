@@ -1,6 +1,5 @@
 package com.example.validationapp.doman.use_case
 
-import org.junit.Assert
 import org.junit.Assert.*
 
 import org.junit.Before
