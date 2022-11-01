@@ -3,21 +3,11 @@ package com.example.noteappkmm.android.note_list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.noteappkmm.domain.note.Note
 import com.example.noteappkmm.domain.note.NoteDataSource
-import com.example.noteappkmm.domain.note.SearchNotes
-import com.example.noteappkmm.domain.time.DateTimeUtil
-import com.example.noteappkmm.presentation.RedOrangeHex
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val NOTES = "notes"
-private const val SEARCH_TEXT = "searchText"
-private const val IS_SEARCH_ACTIVE = "isSearchActive"
 
 @HiltViewModel
 class NoteListViewModel @Inject constructor(
@@ -25,36 +15,28 @@ class NoteListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val searchNotes = SearchNotes()
-
-    private val notes = savedStateHandle.getStateFlow(NOTES, emptyList<Note>())
-    private val searchText = savedStateHandle.getStateFlow(SEARCH_TEXT, "")
-    private val isSearchActive = savedStateHandle.getStateFlow(IS_SEARCH_ACTIVE, false)
-
-    val state = combine(notes, searchText, isSearchActive) { notes, searchText, isSearchActive ->
-        NoteListState(
-            notes = searchNotes.execute(notes, searchText),
-            searchText = searchText,
-            isSearchActive = isSearchActive
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), NoteListState())
-
+    private val NOTE_LIST = "noteList"
+    val state = savedStateHandle.getStateFlow(NOTE_LIST, NoteListState())
 
     fun loadNotes() {
         viewModelScope.launch {
-            savedStateHandle[NOTES] = noteDataSource.getAllNotes()
+            savedStateHandle[NOTE_LIST] = state.value.copy(
+                notes = noteDataSource.getAllNotes()
+            )
         }
     }
 
     fun onSearchTextChange(text: String){
-        savedStateHandle[SEARCH_TEXT] = text
+        savedStateHandle[NOTE_LIST] = state.value.copy(
+            searchText = text
+        )
     }
 
     fun onToggleSearch() {
-        savedStateHandle[IS_SEARCH_ACTIVE] = !isSearchActive.value
-        if(!isSearchActive.value){
-            savedStateHandle[SEARCH_TEXT] = ""
-        }
+        savedStateHandle[NOTE_LIST] = state.value.copy(
+            isSearchActive = !state.value.isSearchActive,
+            searchText = ""
+        )
     }
 
     fun deleteNoteById(id: Long){
