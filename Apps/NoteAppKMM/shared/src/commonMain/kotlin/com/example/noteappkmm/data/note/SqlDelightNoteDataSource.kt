@@ -29,6 +29,7 @@ class SqlDelightNoteDataSource(
     }
 
     override suspend fun getAllNotes(): List<Note> {
+
         return queries
             .getAllNotes()
             .executeAsList()
@@ -36,6 +37,6 @@ class SqlDelightNoteDataSource(
     }
 
     override suspend fun deleteNoteById(id: Long) {
-        queries.getNoteById(id)
+        queries.deleteNoteById(id)
     }
 }

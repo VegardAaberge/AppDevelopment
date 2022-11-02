@@ -21,18 +21,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.noteappkmm.android.MyApplicationTheme
+import androidx.navigation.NavController
+import com.example.noteappkmm.android.components.CollectEventFlow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteListScreen(
+    navController: NavController,
     viewModel: NoteListViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    CollectEventFlow(viewModel, navController, viewModel.uiEvent)
 
     LaunchedEffect(key1 = true) {
         viewModel.loadNotes()
@@ -42,7 +44,7 @@ fun NoteListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-
+                    viewModel.onEvent(NoteListScreenEvent.NewNote)
                 },
                 backgroundColor = Color.Black
             ) {
@@ -66,9 +68,12 @@ fun NoteListScreen(
                 HideableSearchTextField(
                     text = state.searchText,
                     isSearchActive = state.isSearchActive,
-                    onTextChange = viewModel::onSearchTextChange,
-                    onSearchClick = viewModel::onToggleSearch,
-                    onCloseClick = viewModel::onToggleSearch,
+                    onTextChange = {
+                        viewModel.onEvent(NoteListScreenEvent.Search(it))
+                    },
+                    toggleSearch = {
+                        viewModel.onEvent(NoteListScreenEvent.ToggleSearch)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(90.dp)
@@ -96,10 +101,10 @@ fun NoteListScreen(
                         note = note,
                         backgroundColor = Color(note.colorHex),
                         onNoteClick = {
-
+                            viewModel.onEvent(NoteListScreenEvent.EditNote(note.id!!))
                         },
                         onDeleteClick = {
-                            viewModel.deleteNoteById(note.id!!)
+                            viewModel.onEvent(NoteListScreenEvent.DeleteNoteById(note.id!!))
                         },
                         modifier = Modifier
                             .fillMaxWidth()

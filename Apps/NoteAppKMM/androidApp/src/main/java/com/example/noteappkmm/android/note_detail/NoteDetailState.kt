@@ -1,12 +1,16 @@
 package com.example.noteappkmm.android.note_detail
 
-import androidx.compose.ui.graphics.Color
+import android.os.Parcelable
 import com.example.noteappkmm.domain.note.Note
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class NoteDetailState(
     val noteTitle: String = "",
-    val isNoteTitleTextFocused: Boolean = false,
+    val isNoteTitleHintVisible: Boolean = false,
     val noteContent: String = "",
-    val isNoteContentFocused: Boolean = false,
-    val noteColor: Long = 0xFFFFFFFF
-)
+    val isNoteContentHintVisible: Boolean = false,
+    val noteColor: Long = Note.generateRandomColor()
+) : Parcelable {
+    fun canSave() = noteTitle.isNotEmpty() && noteContent.isNotEmpty()
+}

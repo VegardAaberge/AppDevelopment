@@ -3,10 +3,12 @@ package com.example.noteappkmm.android.note_detail
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.noteappkmm.android.models.UIEvent
 import com.example.noteappkmm.domain.note.Note
 import com.example.noteappkmm.domain.note.NoteDataSource
 import com.example.noteappkmm.domain.time.DateTimeUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,17 +25,16 @@ class NoteDetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val HANDLE = "noteDetail"
-    val state = savedStateHandle.getStateFlow(HANDLE, NoteDetailSavedState())
+    val state = savedStateHandle.getStateFlow(HANDLE, NoteDetailState())
 
-    private val _hasNoteBeenSaved = MutableStateFlow(false)
-    val hasNoteBeenSaved = _hasNoteBeenSaved.asStateFlow()
+    private val _uiEvent = Channel<UIEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     private var existingNoteId: Long? = null
 
     init {
         savedStateHandle.get<Long>("noteId")?.let {
-            if(existingNoteId == -1L){
+            if(it == -1L){
                 return@let
             }
             existingNoteId = it
@@ -71,7 +72,7 @@ class NoteDetailViewModel @Inject constructor(
                     isNoteTitleHintVisible = state.value.noteTitle.isEmpty() && !event.focused
                 )
             }
-            NoteDetailScreenEvent.SaveNote -> {
+            is NoteDetailScreenEvent.SaveNote -> {
                 viewModelScope.launch {
                     noteDataSource.insertNote(
                         Note(
@@ -82,9 +83,13 @@ class NoteDetailViewModel @Inject constructor(
                             created = DateTimeUtil.now()
                         )
                     )
-                    _hasNoteBeenSaved.value = true
+                    _uiEvent.send(UIEvent.PopPage)
                 }
             }
         }
+    }
+
+    companion object {
+        const val HANDLE = "noteDetail"
     }
 }

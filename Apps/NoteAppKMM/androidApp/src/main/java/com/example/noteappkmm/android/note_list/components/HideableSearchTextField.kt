@@ -26,8 +26,7 @@ fun HideableSearchTextField(
     text: String,
     isSearchActive: Boolean,
     onTextChange: (String) -> Unit,
-    onSearchClick: () -> Unit,
-    onCloseClick: () -> Unit,
+    toggleSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -53,7 +52,7 @@ fun HideableSearchTextField(
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
-            IconButton(onClick = onCloseClick) {
+            IconButton(onClick = toggleSearch) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close search"
@@ -66,7 +65,7 @@ fun HideableSearchTextField(
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
-            IconButton(onClick = onSearchClick) {
+            IconButton(onClick = toggleSearch) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Open search"
@@ -84,8 +83,8 @@ fun HideableSearchTextFieldPreview() {
             text = "Title",
             isSearchActive = false,
             onTextChange = {},
-            onSearchClick = {},
-            onCloseClick = { })
+            toggleSearch = {},
+        )
     }
 }
 
@@ -97,7 +96,7 @@ fun HHideableSearchTextFieldPreviewActive() {
             text = "Title",
             isSearchActive = true,
             onTextChange = {},
-            onSearchClick = {},
-            onCloseClick = { })
+            toggleSearch = {},
+        )
     }
 }
