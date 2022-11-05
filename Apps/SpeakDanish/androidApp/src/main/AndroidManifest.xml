@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <queries>
+        <intent>
+            <action
+                android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".SpeakDanish"
         android:allowBackup="false"
@@ -11,6 +18,7 @@
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
+                <action android:name="android.speech.tts.engine.INSTALL_TTS_DATA" />
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

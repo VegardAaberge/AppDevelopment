@@ -1,5 +1,6 @@
 package com.example.speakdanish.data.local
 
+import com.plcoding.speakdanish.database.RecordingDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 

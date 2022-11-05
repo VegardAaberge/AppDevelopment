@@ -1,5 +1,6 @@
 package com.example.speakdanish.android.speak
 
+import android.speech.tts.TextToSpeech
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.example.speakdanish.android.models.UIEvent
@@ -10,6 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
+import java.util.*
 import javax.inject.Inject
 
 
@@ -26,7 +28,7 @@ class SpeakViewModel @Inject constructor(
 
     init {
         savedStateHandle[HANDLE] = state.value.copy(
-            sentence = "Jeg hedder Emma",
+            sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på.",
             recordings = listOf(
                 Recording(
                     content = "",
@@ -43,7 +45,7 @@ class SpeakViewModel @Inject constructor(
     fun onEvent(event: SpeakScreenEvent){
         when(event) {
             is SpeakScreenEvent.ListenAgain -> {
-                TODO()
+
             }
             is SpeakScreenEvent.ListenToRecording -> {
                 TODO()

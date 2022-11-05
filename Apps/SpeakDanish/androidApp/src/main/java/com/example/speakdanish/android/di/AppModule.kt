@@ -4,7 +4,7 @@ import android.app.Application
 import com.example.speakdanish.data.local.DatabaseDriverFactory
 import com.example.speakdanish.data.SqlDelightRecordingDataSource
 import com.example.speakdanish.domain.RecordingDataSource
-import com.plcoding.speakdanish.database.NoteDatabase
+import com.plcoding.speakdanish.database.RecordingDatabase
 import com.squareup.sqldelight.db.SqlDriver
 import dagger.Module
 import dagger.Provides
@@ -25,6 +25,6 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRecordingDataSource(driver: SqlDriver) : RecordingDataSource {
-        return SqlDelightRecordingDataSource(NoteDatabase(driver))
+        return SqlDelightRecordingDataSource(RecordingDatabase(driver))
     }
 }
