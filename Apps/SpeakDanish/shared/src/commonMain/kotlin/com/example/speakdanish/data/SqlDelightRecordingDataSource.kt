@@ -8,7 +8,7 @@ class SqlDelightRecordingDataSource(
     db: RecordingDatabase
 ) : RecordingDataSource {
 
-    private val queries = db.noteQueries
+    private val queries = db.recordingQueries
 
     override suspend fun insertRecording(recording: Recording) {
         queries.insertRecording(
@@ -25,7 +25,7 @@ class SqlDelightRecordingDataSource(
             ?.toRecording()
     }
 
-    override suspend fun deleteNoteById(id: String) {
+    override suspend fun deleteRecordingById(id: String) {
         queries.deleteRecordingById(id)
     }
 }

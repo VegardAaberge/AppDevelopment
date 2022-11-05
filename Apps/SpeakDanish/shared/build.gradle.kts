@@ -67,7 +67,7 @@ kotlin {
 }
 
 sqldelight {
-    database("NoteDatabase"){
+    database("RecordingDatabase"){
         packageName = "com.plcoding.speakdanish.database"
         sourceFolders = listOf("sqldelight")
     }
