@@ -1,0 +1,22 @@
+CREATE TABLE recordingEntity(
+    id TEXT NOT NULL PRIMARY KEY,
+    content TEXT NOT NULL,
+    created INTEGER NOT NULL
+);
+
+getRecordingById:
+SELECT *
+FROM recordingEntity
+WHERE id = ?;
+
+insertRecording:
+INSERT OR REPLACE
+INTO recordingEntity(
+    id,
+    content,
+    created
+) VALUES (?, ?, ?);
+
+deleteRecordingById:
+DELETE FROM recordingEntity
+WHERE id = ?;

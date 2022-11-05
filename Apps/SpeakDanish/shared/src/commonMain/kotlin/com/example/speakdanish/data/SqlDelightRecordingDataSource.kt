@@ -1,0 +1,31 @@
+package com.example.speakdanish.data
+
+import com.example.speakdanish.domain.Recording
+import com.example.speakdanish.domain.RecordingDataSource
+import com.example.speakdanish.domain.time.DateTimeUtil
+
+class SqlDelightRecordingDataSource(
+    db: RecordingDatabase
+) : RecordingDataSource {
+
+    private val queries = db.noteQueries
+
+    override suspend fun insertRecording(recording: Recording) {
+        queries.insertRecording(
+            id = recording.id,
+            content = recording.content,
+            created = DateTimeUtil.toEpochMilis(recording.created)
+        )
+    }
+
+    override suspend fun getRecordingById(id: String): Recording? {
+        return queries
+            .getRecordingById(id)
+            .executeAsOneOrNull()
+            ?.toRecording()
+    }
+
+    override suspend fun deleteNoteById(id: String) {
+        queries.deleteRecordingById(id)
+    }
+}
