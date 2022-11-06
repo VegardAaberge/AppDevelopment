@@ -3,6 +3,7 @@ package com.example.speakdanish.android.components
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.example.speakdanish.android.models.UIEvent
@@ -24,6 +25,9 @@ fun CollectEventFlow(
                 }
                 is UIEvent.NavigateTo -> {
                     navController.navigate(event.path)
+                }
+                is UIEvent.StartActivity -> {
+                    ContextCompat.startActivity(context, event.intent, null)
                 }
             }
         }

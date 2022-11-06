@@ -1,8 +1,10 @@
 package com.example.speakdanish.android.speak
 
+import android.view.MotionEvent
+
 sealed class SpeakScreenEvent {
     object ListenAgain: SpeakScreenEvent()
-    object RecordTapped: SpeakScreenEvent()
+    data class RecordTapped(val filePath: String, val motionEvent: MotionEvent): SpeakScreenEvent()
     object SettingsTapped: SpeakScreenEvent()
     object SubmitTapped : SpeakScreenEvent()
     data class ListenToRecording(val recordId: String): SpeakScreenEvent()

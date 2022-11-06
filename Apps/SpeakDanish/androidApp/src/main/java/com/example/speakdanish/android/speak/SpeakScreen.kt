@@ -1,20 +1,29 @@
 package com.example.speakdanish.android.speak
 
-import android.content.Intent
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.media.MediaRecorder
+import android.os.Build
 import android.speech.tts.TextToSpeech
-import android.speech.tts.Voice
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.view.MotionEvent
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -23,53 +32,72 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.speakdanish.android.speak.components.SpeakTextItem
-import com.example.speakdanish.android.MyApplicationTheme
+import com.example.speakdanish.android.AppTheme
 import com.example.speakdanish.android.components.CollectEventFlow
 import com.example.speakdanish.android.speak.components.RecordItem
+import com.example.speakdanish.android.speak.components.SpeakTextItem
 import com.example.speakdanish.domain.Recording
 import com.example.speakdanish.utils.Constants
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-@OptIn(ExperimentalFoundationApi::class)
+lateinit private var launcher: ManagedActivityResultLauncher<String, Boolean>
+
 @Composable
 fun SpeakScreen(
     navController: NavController,
     viewModel: SpeakViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current.applicationContext
     val state by viewModel.state.collectAsState()
     CollectEventFlow(viewModel, navController, viewModel.uiEvent)
 
+    TextToSpeech(
+        viewModel = viewModel,
+        state = state,
+        context = context
+    )
+
     SpeakBody(
-        sentence = state.sentence,
-        recordings = state.recordings,
+        state = state,
         listenAgain = { viewModel.onEvent(SpeakScreenEvent.ListenAgain) },
-        recordTapped = { viewModel.onEvent(SpeakScreenEvent.RecordTapped) },
         settingsTapped = { viewModel.onEvent(SpeakScreenEvent.SettingsTapped) },
         submitTapped = { viewModel.onEvent(SpeakScreenEvent.SubmitTapped)},
-        listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) }
+        listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) },
+        recordTapped = { motionEvent ->
+            val absolutePath = context.getFilesDir().absolutePath + File.separator + "test"
+
+            // Check permission
+            when (PackageManager.PERMISSION_GRANTED) {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.RECORD_AUDIO
+                ) -> {
+                    viewModel.onEvent(SpeakScreenEvent.RecordTapped(absolutePath, motionEvent))
+                }
+                else -> {
+                    // Asking for permission
+                    launcher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }
+        }
     )
 }
 
 @Composable
 fun SpeakBody(
-    sentence: String,
-    recordings: List<Recording>,
+    state: SpeakState,
     listenAgain: () -> Unit,
-    recordTapped: () -> Unit,
+    recordTapped: (MotionEvent) -> Unit,
     settingsTapped: () -> Unit,
     submitTapped: () -> Unit,
     listenToRecording: (String) -> Unit,
 ) {
-    val context = LocalContext.current
-
-    TextToSpeech()
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -95,31 +123,43 @@ fun SpeakBody(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(padding)
                 .padding(16.dp),
         ) {
-            Text(
-                text = "Speak this sentence",
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if(state.isRecording){
+                    Box(modifier = Modifier
+                        .padding(start = 4.dp, end = 8.dp)
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(Color.Red)
+                    )
+                }
+                Text(
+                    text = if(state.isRecording) "Recording" else "Speak this sentence",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
             SpeakTextItem(
-                text = sentence,
-                listenAction = {
-                    googleTTS.setVoice(voices.random())
-                    googleTTS.speak(sentence.subSequence(0, sentence.length), TextToSpeech.QUEUE_ADD, null, "1")
-                }
+                text = state.sentence,
+                listenAction = listenAgain
             )
             RecordItem(
-                recordAction = recordTapped
+                isRecording = state.isRecording,
+                recordTapped = recordTapped,
             )
             Text(
-                text = "Your recordings",
+                text = "Your recording",
                 fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(8.dp))
-            recordings.forEach { recording ->
+            state.recording?.let { recording ->
                 val text = remember(recording.created){
                     val date = recording.created.toJavaLocalDateTime()
                     val dateTimeFormat = DateTimeFormatter.ofPattern(
@@ -144,6 +184,7 @@ fun SpeakBody(
                 },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
+                    .padding(vertical = 16.dp)
                     .height(40.dp)
                     .fillMaxWidth()
             ) {
@@ -153,21 +194,51 @@ fun SpeakBody(
     }
 }
 
+@Composable
+fun TextToSpeech(
+    viewModel: SpeakViewModel,
+    state: SpeakState,
+    context: Context
+) {
+    viewModel.googleTTS = remember {
+        TextToSpeech(context) { status ->
+            viewModel.GoogleTTSInitalised(status)
+        }
+    }
+    viewModel.recorder = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(context)
+        }else{
+            MediaRecorder()
+        }
+    }
+
+    launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission Accepted: Do something
+            Log.d("ExampleScreen","PERMISSION GRANTED")
+
+        } else {
+            // Permission Denied: Do something
+            Log.d("ExampleScreen","PERMISSION DENIED")
+        }
+    }
+}
+
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun SpeakBodyPreview() {
-    MyApplicationTheme {
+    AppTheme {
         SpeakBody(
-            sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på.",
-            recordings = listOf(
-                Recording(
+            state = SpeakState(
+                sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på.",
+                recording = Recording(
                     content = "",
                     created = LocalDateTime.now().minusMinutes(15).toKotlinLocalDateTime()
                 ),
-                Recording(
-                    content = "",
-                    created = LocalDateTime.now().toKotlinLocalDateTime()
-                ),
+                isRecording = true
             ),
             listenAgain = { },
             recordTapped = { },
@@ -176,33 +247,4 @@ fun SpeakBodyPreview() {
             listenToRecording = { }
         )
     }
-}
-
-lateinit var googleTTS: TextToSpeech
-lateinit var voices: List<Voice>
-
-@Composable
-fun TextToSpeech() {
-
-    googleTTS = TextToSpeech(LocalContext.current.applicationContext) { status ->
-        if (status != TextToSpeech.ERROR) {
-            Log.i("XXX", "Google tts initialized")
-            googleTTS.setLanguage(Locale("da_DK"));
-            voices = googleTTS.voices.filter { it.locale.displayLanguage == "Danish" && !it.isNetworkConnectionRequired }
-        } else {
-            Log.i("XXX", "Internal Google engine init error.")
-        }
-    }
-
-    //InstallVoiceData()
-}
-
-@Composable
-private fun InstallVoiceData() {
-    val intent = Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA)
-    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    intent.setPackage("com.google.android.tts" /*replace with the package name of the target TTS engine*/)
-
-    Log.v("TAG", "Installing voice data: " + intent.toUri(0))
-    ContextCompat.startActivity(LocalContext.current.applicationContext, intent, null)
 }

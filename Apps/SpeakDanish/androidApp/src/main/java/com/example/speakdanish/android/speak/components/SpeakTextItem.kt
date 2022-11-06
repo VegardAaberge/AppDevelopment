@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.speakdanish.android.MyApplicationTheme
+import com.example.speakdanish.android.AppTheme
 import com.example.speakdanish.android.R
 
 @Composable
@@ -55,7 +55,7 @@ fun SpeakTextItem(
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun SpeakTextItemPreview() {
-    MyApplicationTheme {
+    AppTheme {
         SpeakTextItem(
             "Jeg hedder",
             listenAction = {}
