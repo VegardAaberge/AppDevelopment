@@ -148,7 +148,8 @@ fun SpeakBody(
             Spacer(modifier = Modifier.height(16.dp))
             SpeakTextItem(
                 text = state.sentence,
-                listenAction = listenAgain
+                listenAction = listenAgain,
+                isListening = false, //TODO
             )
             RecordItem(
                 isRecording = state.isRecording,
@@ -174,6 +175,7 @@ fun SpeakBody(
                     listenAction = {
                         listenToRecording(recording.id)
                     },
+                    isListening = false, //TODO
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }

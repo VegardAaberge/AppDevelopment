@@ -1,62 +1,35 @@
 package com.example.speakdanish.android.recordings
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.media.MediaRecorder
-import android.os.Build
 import android.speech.tts.TextToSpeech
-import android.util.Log
-import android.view.MotionEvent
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.speakdanish.android.AppTheme
 import com.example.speakdanish.android.R
 import com.example.speakdanish.android.components.CollectEventFlow
-import com.example.speakdanish.android.speak.components.RecordItem
 import com.example.speakdanish.android.speak.components.SpeakTextItem
 import com.example.speakdanish.domain.Recording
-import com.example.speakdanish.utils.Constants
-import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
-import java.io.File
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 @Composable
 fun RecordingsScreen(
@@ -120,6 +93,7 @@ fun RecordingsBody(
             items(state.recordings){recording ->
                 RecordingItem(
                     recording = recording,
+                    playRecordId = state.playRecordId,
                     listenToRecording = { listenToRecording(recording.id) },
                     deleteRecording = { deleteRecording(recording.id) },
                     playRecording = { playRecording(recording.id) },
@@ -135,6 +109,7 @@ fun RecordingsBody(
 @Composable
 fun RecordingItem(
     recording: Recording,
+    playRecordId: String?,
     listenToRecording: () -> Unit,
     deleteRecording: () -> Unit,
     playRecording: () -> Unit,
@@ -192,6 +167,7 @@ fun RecordingItem(
                 ) {
                     SpeakTextItem(
                         text = recording.text,
+                        isListening = recording.id == playRecordId,
                         listenAction = playRecording,
                         modifier = Modifier.weight(1f)
                     )
@@ -220,9 +196,9 @@ fun TextToSpeech(
     viewModel: RecordingsViewModel,
     context: Context
 ) {
-    viewModel.googleTTS = remember {
+    viewModel.textToSpeech = remember {
         TextToSpeech(context) { status ->
-            viewModel.GoogleTTSInitalised(status)
+            viewModel.textToSpeechInitalised(status)
         }
     }
 }

@@ -2,24 +2,20 @@ package com.example.speakdanish.android.recordings
 
 import android.content.Intent
 import android.media.MediaPlayer
-import android.media.MediaRecorder
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.util.Log
-import android.view.MotionEvent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.speakdanish.android.models.UIEvent
-import com.example.speakdanish.android.speak.SpeakViewModel
 import com.example.speakdanish.domain.Recording
 import com.example.speakdanish.domain.RecordingDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.toKotlinLocalDateTime
-import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -35,7 +31,7 @@ class RecordingsViewModel @Inject constructor(
     private val _uiEvent = Channel<UIEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    lateinit var googleTTS: TextToSpeech
+    lateinit var textToSpeech: TextToSpeech
     private var selectedVoice: Voice? = null
     lateinit private var voices: List<Voice>
 
@@ -58,7 +54,7 @@ class RecordingsViewModel @Inject constructor(
             }
             is RecordingsScreenEvent.PlayRecording -> {
                 state.value.recordings.firstOrNull { it.id == event.recordId }?.let {
-                    playNativeSpeech(it.text)
+                    playNativeSpeech(it.id, it.text)
                 }
             }
             is RecordingsScreenEvent.NewRecording -> {
@@ -67,38 +63,49 @@ class RecordingsViewModel @Inject constructor(
         }
     }
 
-    fun loadRecordings(){
-        viewModelScope.launch {
-            val recordings = recordingDataSource.getAllRecordings()
-            savedStateHandle[SpeakViewModel.HANDLE] = state.value.copy(
-                recordings = recordings
-            )
-        }
-    }
-
-    fun playNativeSpeech(sentence: String){
-        if(selectedVoice == null){
-            selectedVoice = if(voices.isNotEmpty()) voices.random() else null
-        }
-        if(selectedVoice != null){
-            googleTTS.setVoice(selectedVoice)
-            googleTTS.speak(sentence.subSequence(0, sentence.length), TextToSpeech.QUEUE_ADD, null, "1")
-        }else{
-            InstallVoiceData()
-        }
-    }
-
-    fun GoogleTTSInitalised(status: Int) = viewModelScope.launch {
+    fun textToSpeechInitalised(status: Int) = viewModelScope.launch {
         if (status != TextToSpeech.ERROR) {
-            Log.i("XXX", "Google tts initialized")
-            googleTTS.setLanguage(Locale("da_DK"));
-            voices = googleTTS.voices?.filter { it.locale.displayLanguage == "Danish" && !it.isNetworkConnectionRequired } ?: emptyList()
+            textToSpeech.setLanguage(Locale("da_DK"));
+            voices = textToSpeech.voices?.filter { it.locale.displayLanguage == "Danish" && !it.isNetworkConnectionRequired } ?: emptyList()
         } else {
             Log.i("XXX", "Internal Google engine init error.")
         }
     }
 
-    fun playRecording(path: String) {
+    private fun loadRecordings(){
+        viewModelScope.launch {
+            val recordings = recordingDataSource.getAllRecordings()
+            savedStateHandle[HANDLE] = state.value.copy(
+                recordings = recordings
+            )
+        }
+    }
+
+    private fun playNativeSpeech(id: String, sentence: String){
+        if(selectedVoice == null){
+            selectedVoice = if(voices.isNotEmpty()) voices.random() else null
+        }
+        if(selectedVoice != null){
+            textToSpeech.setVoice(selectedVoice)
+            textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) = setPlayRecordId(id)
+                override fun onDone(utteranceId: String?) = setPlayRecordId(null)
+                @Deprecated("Deprecated in Java")
+                override fun onError(utteranceId: String?) = setPlayRecordId(null)
+            })
+            textToSpeech.speak(sentence.subSequence(0, sentence.length), TextToSpeech.QUEUE_ADD, null, "1")
+        }else{
+            InstallVoiceData()
+        }
+    }
+
+    private fun setPlayRecordId(id: String?){
+        savedStateHandle[HANDLE]= state.value.copy(
+            playRecordId = id
+        )
+    }
+
+    private fun playRecording(path: String) {
         val mp = MediaPlayer()
         try {
             mp.setDataSource(path)
@@ -109,7 +116,7 @@ class RecordingsViewModel @Inject constructor(
         }
     }
 
-    fun InstallVoiceData() = viewModelScope.launch {
+    private fun InstallVoiceData() = viewModelScope.launch {
         val intent = Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.setPackage("com.google.android.tts")
@@ -117,6 +124,6 @@ class RecordingsViewModel @Inject constructor(
     }
 
     companion object {
-        const val HANDLE = "speak"
+        const val HANDLE = "recordings"
     }
 }
