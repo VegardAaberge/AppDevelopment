@@ -18,8 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,14 +30,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.speakdanish.android.AppTheme
 import com.example.speakdanish.android.R
 import com.example.speakdanish.android.components.CollectEventFlow
+import com.example.speakdanish.android.destinations.RecordingsScreenDestination
 import com.example.speakdanish.android.speak.components.RecordItem
 import com.example.speakdanish.android.speak.components.SpeakTextItem
 import com.example.speakdanish.domain.Recording
 import com.example.speakdanish.utils.Constants
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.io.File
@@ -50,14 +53,26 @@ import java.util.*
 
 lateinit private var launcher: ManagedActivityResultLauncher<String, Boolean>
 
+@RootNavGraph(start = true)
+@Destination
 @Composable
 fun SpeakScreen(
-    navController: NavController,
+    navigator: DestinationsNavigator,
+    resultRecipient: ResultRecipient<RecordingsScreenDestination, String>,
     viewModel: SpeakViewModel = hiltViewModel()
 ) {
+    resultRecipient.onNavResult { result ->
+        when (result) {
+            is NavResult.Canceled -> {}
+            is NavResult.Value -> {
+                viewModel.init(result.value)
+            }
+        }
+    }
+
     val context = LocalContext.current.applicationContext
     val state by viewModel.state.collectAsState()
-    CollectEventFlow(viewModel, navController, viewModel.uiEvent)
+    CollectEventFlow(viewModel, navigator, viewModel.uiEvent)
 
     TextToSpeech(
         viewModel = viewModel,
@@ -71,7 +86,7 @@ fun SpeakScreen(
         submitTapped = { viewModel.onEvent(SpeakScreenEvent.SubmitTapped)},
         listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) },
         recordTapped = { motionEvent ->
-            val absolutePath = context.getFilesDir().absolutePath + File.separator + "test"
+            val saveDirectory = context.getFilesDir().absolutePath + File.separator
 
             // Check permission
             when (PackageManager.PERMISSION_GRANTED) {
@@ -79,7 +94,7 @@ fun SpeakScreen(
                     context,
                     Manifest.permission.RECORD_AUDIO
                 ) -> {
-                    viewModel.onEvent(SpeakScreenEvent.RecordTapped(absolutePath, motionEvent))
+                    viewModel.onEvent(SpeakScreenEvent.RecordTapped(saveDirectory, motionEvent))
                 }
                 else -> {
                     // Asking for permission

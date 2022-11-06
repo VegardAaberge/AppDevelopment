@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 data class Recording(
     val id: String = randomUUID(),
     val text: String,
-    val path: String,
+    val path: String = "",
 
     @Serializable(with = LocalDateTimeIso8601Serializer::class)
     @CommonTypeParceler<LocalDateTime, LocalDateTimeParceler>()

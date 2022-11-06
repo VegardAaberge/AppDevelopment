@@ -12,11 +12,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.speakdanish.android.recordings.RecordingsScreen
-import com.example.speakdanish.android.speak.SpeakScreen
+import com.ramcosta.composedestinations.DestinationsNavHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @Composable
@@ -57,12 +53,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
-                val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = "speak"){
-                    composable(route = "speak"){
-                        RecordingsScreen(navController = navController)
-                    }
-                }
+                DestinationsNavHost(navGraph = NavGraphs.root)
             }
         }
     }

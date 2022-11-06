@@ -58,7 +58,11 @@ class RecordingsViewModel @Inject constructor(
                 }
             }
             is RecordingsScreenEvent.NewRecording -> {
-
+                viewModelScope.launch {
+                    state.value.recordings.firstOrNull { it.id == event.recordId }?.let {
+                        _uiEvent.send(UIEvent.PopPageWithResult(it.text))
+                    }
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ plugins {
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     id("kotlin-parcelize")
+    id("com.google.devtools.ksp") version "1.7.10-1.0.6"
 }
 
 android {
@@ -37,6 +38,13 @@ android {
             isMinifyEnabled = false
         }
     }
+    applicationVariants.all {
+        kotlin.sourceSets {
+            getByName(name) {
+                kotlin.srcDir("build/generated/ksp/$name/kotlin")
+            }
+        }
+    }
 }
 
 dependencies {
@@ -55,4 +63,7 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.42")
     kapt("androidx.hilt:hilt-compiler:1.0.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation("io.github.raamcosta.compose-destinations:core:1.7.25-beta")
+    ksp("io.github.raamcosta.compose-destinations:ksp:1.7.25-beta")
 }

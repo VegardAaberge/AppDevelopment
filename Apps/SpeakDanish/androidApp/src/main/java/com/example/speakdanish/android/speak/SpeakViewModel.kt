@@ -10,9 +10,12 @@ import android.view.MotionEvent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.speakdanish.android.destinations.RecordingsScreenDestination
 import com.example.speakdanish.android.models.UIEvent
+import com.example.speakdanish.domain.GetRandomSentence
 import com.example.speakdanish.domain.Recording
 import com.example.speakdanish.domain.RecordingDataSource
+import com.ramcosta.composedestinations.result.NavResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -29,6 +32,7 @@ class SpeakViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val getRandomSentence = GetRandomSentence()
     val state = savedStateHandle.getStateFlow(HANDLE, SpeakState())
 
     private val _uiEvent = Channel<UIEvent>()
@@ -40,8 +44,16 @@ class SpeakViewModel @Inject constructor(
     lateinit private var voices: List<Voice>
 
     init {
+        if(state.value.sentence.isEmpty()){
+            savedStateHandle[HANDLE] = state.value.copy(
+                sentence = getRandomSentence.execute(null),
+            )
+        }
+    }
+
+    fun init(result: String) {
         savedStateHandle[HANDLE] = state.value.copy(
-            sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på.",
+            sentence = result,
         )
     }
 
@@ -56,17 +68,38 @@ class SpeakViewModel @Inject constructor(
                 }
             }
             is SpeakScreenEvent.RecordTapped -> {
+
+                var recording = if(state.value.recording == null){
+                    Recording(
+                        text = state.value.sentence,
+                        created = LocalDateTime.now().toKotlinLocalDateTime()
+                    )
+                } else state.value.recording!!
+
+                val newRecording = recording.copy(
+                    path = event.saveDirectory + recording.id
+                )
+
                 when(event.motionEvent.action){
                     MotionEvent.ACTION_DOWN -> {
-                        startRecording(event.filePath)
+                        savedStateHandle[HANDLE] = state.value.copy(
+                            isRecording = true,
+                            recording = newRecording
+                        )
+                        startRecording(newRecording.path)
                     }
                     MotionEvent.ACTION_UP -> {
-                        stopRecording(event.filePath)
+                        savedStateHandle[HANDLE] = state.value.copy(
+                            isRecording = false,
+                        )
+                        recorder.stop()
                     }
                 }
             }
             is SpeakScreenEvent.HistoryTapped -> {
-
+                viewModelScope.launch {
+                    _uiEvent.send(UIEvent.NavigateTo(RecordingsScreenDestination))
+                }
             }
             is SpeakScreenEvent.SubmitTapped -> {
                 viewModelScope.launch {
@@ -89,28 +122,12 @@ class SpeakViewModel @Inject constructor(
     }
 
     fun startRecording(filePath: String){
-        savedStateHandle[HANDLE] = state.value.copy(
-            isRecording = true
-        )
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         recorder.setOutputFile(filePath);
         recorder.prepare();
         recorder.start()
-    }
-
-    fun stopRecording(filePath: String){
-        recorder.stop()
-        val recording = Recording(
-            path = filePath,
-            text = state.value.sentence,
-            created = LocalDateTime.now().toKotlinLocalDateTime()
-        )
-        savedStateHandle[HANDLE] = state.value.copy(
-            isRecording = false,
-            recording = recording
-        )
     }
 
     fun GoogleTTSInitalised(status: Int) = viewModelScope.launch {

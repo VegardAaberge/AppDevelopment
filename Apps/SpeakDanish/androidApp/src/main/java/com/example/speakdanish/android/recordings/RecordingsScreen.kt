@@ -22,23 +22,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.example.speakdanish.android.AppTheme
 import com.example.speakdanish.android.R
 import com.example.speakdanish.android.components.CollectEventFlow
 import com.example.speakdanish.android.speak.components.SpeakTextItem
 import com.example.speakdanish.domain.Recording
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 
+@Destination
 @Composable
 fun RecordingsScreen(
-    navController: NavController,
+    navigator: DestinationsNavigator,
+    resultNavigator: ResultBackNavigator<String>,
     viewModel: RecordingsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current.applicationContext
     val state by viewModel.state.collectAsState()
-    CollectEventFlow(viewModel, navController, viewModel.uiEvent)
+    CollectEventFlow(viewModel, navigator, viewModel.uiEvent, resultNavigator)
 
     TextToSpeech(
         viewModel = viewModel,
@@ -48,7 +52,7 @@ fun RecordingsScreen(
     RecordingsBody(
         state = state,
         goBack = {
-            navController.popBackStack()
+            navigator.popBackStack()
         },
         listenToRecording = { viewModel.onEvent(RecordingsScreenEvent.ListenToRecording(it)) },
         deleteRecording = { viewModel.onEvent(RecordingsScreenEvent.DeleteRecording(it)) },
