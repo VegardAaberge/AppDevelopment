@@ -9,7 +9,8 @@ import kotlinx.datetime.toLocalDateTime
 fun RecordingEntity.toRecording(): Recording {
     return Recording(
         id = id,
-        content = content,
+        text = text,
+        path = path,
         created = Instant
             .fromEpochMilliseconds(created)
             .toLocalDateTime(TimeZone.currentSystemDefault()),

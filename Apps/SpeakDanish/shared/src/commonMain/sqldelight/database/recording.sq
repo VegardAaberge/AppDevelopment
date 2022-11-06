@@ -1,8 +1,14 @@
 CREATE TABLE recordingEntity(
     id TEXT NOT NULL PRIMARY KEY,
-    content TEXT NOT NULL,
+    text TEXT NOT NULL,
+    path TEXT NOT NULL,
     created INTEGER NOT NULL
 );
+
+getAllRecordings:
+SELECT *
+FROM recordingEntity;
+
 
 getRecordingById:
 SELECT *
@@ -13,9 +19,10 @@ insertRecording:
 INSERT OR REPLACE
 INTO recordingEntity(
     id,
-    content,
+    text,
+    path,
     created
-) VALUES (?, ?, ?);
+) VALUES (?, ?, ?,?);
 
 deleteRecordingById:
 DELETE FROM recordingEntity

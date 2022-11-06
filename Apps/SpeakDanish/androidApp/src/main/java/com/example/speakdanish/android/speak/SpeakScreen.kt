@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.speakdanish.android.AppTheme
+import com.example.speakdanish.android.R
 import com.example.speakdanish.android.components.CollectEventFlow
 import com.example.speakdanish.android.speak.components.RecordItem
 import com.example.speakdanish.android.speak.components.SpeakTextItem
@@ -59,14 +61,13 @@ fun SpeakScreen(
 
     TextToSpeech(
         viewModel = viewModel,
-        state = state,
         context = context
     )
 
     SpeakBody(
         state = state,
         listenAgain = { viewModel.onEvent(SpeakScreenEvent.ListenAgain) },
-        settingsTapped = { viewModel.onEvent(SpeakScreenEvent.SettingsTapped) },
+        settingsTapped = { viewModel.onEvent(SpeakScreenEvent.HistoryTapped) },
         submitTapped = { viewModel.onEvent(SpeakScreenEvent.SubmitTapped)},
         listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) },
         recordTapped = { motionEvent ->
@@ -111,8 +112,8 @@ fun SpeakBody(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            painter = painterResource(id = R.drawable.baseline_history_24),
+                            contentDescription = "History",
                         )
                     }
 
@@ -182,6 +183,7 @@ fun SpeakBody(
                 onClick = {
                     submitTapped()
                 },
+                enabled = state.recording != null,
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .padding(vertical = 16.dp)
@@ -197,7 +199,6 @@ fun SpeakBody(
 @Composable
 fun TextToSpeech(
     viewModel: SpeakViewModel,
-    state: SpeakState,
     context: Context
 ) {
     viewModel.googleTTS = remember {
@@ -209,6 +210,7 @@ fun TextToSpeech(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             MediaRecorder(context)
         }else{
+            @Suppress("DEPRECATION")
             MediaRecorder()
         }
     }
@@ -230,13 +232,15 @@ fun TextToSpeech(
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun SpeakBodyPreview() {
+    val sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på."
     AppTheme {
         SpeakBody(
             state = SpeakState(
-                sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på.",
+                sentence = sentence,
                 recording = Recording(
-                    content = "",
-                    created = LocalDateTime.now().minusMinutes(15).toKotlinLocalDateTime()
+                    path = "",
+                    text = sentence,
+                    created = LocalDateTime.now().toKotlinLocalDateTime()
                 ),
                 isRecording = true
             ),

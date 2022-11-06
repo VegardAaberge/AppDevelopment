@@ -14,7 +14,8 @@ class SqlDelightRecordingDataSource(
     override suspend fun insertRecording(recording: Recording) {
         queries.insertRecording(
             id = recording.id,
-            content = recording.content,
+            text = recording.text,
+            path = recording.path,
             created = DateTimeUtil.toEpochMilis(recording.created)
         )
     }
@@ -24,6 +25,14 @@ class SqlDelightRecordingDataSource(
             .getRecordingById(id)
             .executeAsOneOrNull()
             ?.toRecording()
+    }
+
+    override suspend fun getAllRecordings(): List<Recording> {
+        return queries
+            .getAllRecordings()
+            .executeAsList()
+            .map { it.toRecording() }
+            .sortedBy { it.text }
     }
 
     override suspend fun deleteRecordingById(id: String) {

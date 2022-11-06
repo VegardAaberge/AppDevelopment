@@ -1,4 +1,4 @@
-package com.example.speakdanish.android.speak
+package com.example.speakdanish.android.recordings
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -11,6 +11,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.speakdanish.android.models.UIEvent
+import com.example.speakdanish.android.speak.SpeakViewModel
 import com.example.speakdanish.domain.Recording
 import com.example.speakdanish.domain.RecordingDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,55 +25,54 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SpeakViewModel @Inject constructor(
+class RecordingsViewModel @Inject constructor(
     private val recordingDataSource: RecordingDataSource,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val state = savedStateHandle.getStateFlow(HANDLE, SpeakState())
+    val state = savedStateHandle.getStateFlow(HANDLE, RecordingsState())
 
     private val _uiEvent = Channel<UIEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     lateinit var googleTTS: TextToSpeech
-    lateinit var recorder: MediaRecorder
     private var selectedVoice: Voice? = null
     lateinit private var voices: List<Voice>
 
     init {
-        savedStateHandle[HANDLE] = state.value.copy(
-            sentence = "Gå ikke glip af denne fantastiske forestilling, en enkel, men kunstnerisk måde at vise livet på.",
-        )
+        loadRecordings()
     }
 
-    fun onEvent(event: SpeakScreenEvent){
-        when(event) {
-            is SpeakScreenEvent.ListenAgain -> {
-                playNativeSpeech(state.value.sentence)
+    fun onEvent(event: RecordingsScreenEvent) {
+        when (event) {
+            is RecordingsScreenEvent.DeleteRecording -> {
+                viewModelScope.launch {
+                    recordingDataSource.deleteRecordingById(event.recordId)
+                    loadRecordings()
+                }
             }
-            is SpeakScreenEvent.ListenToRecording -> {
-                state.value.recording?.let {
+            is RecordingsScreenEvent.ListenToRecording -> {
+                state.value.recordings.firstOrNull { it.id == event.recordId }?.let {
                     playRecording(it.path)
                 }
             }
-            is SpeakScreenEvent.RecordTapped -> {
-                when(event.motionEvent.action){
-                    MotionEvent.ACTION_DOWN -> {
-                        startRecording(event.filePath)
-                    }
-                    MotionEvent.ACTION_UP -> {
-                        stopRecording(event.filePath)
-                    }
+            is RecordingsScreenEvent.PlayRecording -> {
+                state.value.recordings.firstOrNull { it.id == event.recordId }?.let {
+                    playNativeSpeech(it.text)
                 }
             }
-            is SpeakScreenEvent.HistoryTapped -> {
+            is RecordingsScreenEvent.NewRecording -> {
 
             }
-            is SpeakScreenEvent.SubmitTapped -> {
-                viewModelScope.launch {
-                    recordingDataSource.insertRecording(state.value.recording!!)
-                }
-            }
+        }
+    }
+
+    fun loadRecordings(){
+        viewModelScope.launch {
+            val recordings = recordingDataSource.getAllRecordings()
+            savedStateHandle[SpeakViewModel.HANDLE] = state.value.copy(
+                recordings = recordings
+            )
         }
     }
 
@@ -88,31 +88,6 @@ class SpeakViewModel @Inject constructor(
         }
     }
 
-    fun startRecording(filePath: String){
-        savedStateHandle[HANDLE] = state.value.copy(
-            isRecording = true
-        )
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        recorder.setOutputFile(filePath);
-        recorder.prepare();
-        recorder.start()
-    }
-
-    fun stopRecording(filePath: String){
-        recorder.stop()
-        val recording = Recording(
-            path = filePath,
-            text = state.value.sentence,
-            created = LocalDateTime.now().toKotlinLocalDateTime()
-        )
-        savedStateHandle[HANDLE] = state.value.copy(
-            isRecording = false,
-            recording = recording
-        )
-    }
-
     fun GoogleTTSInitalised(status: Int) = viewModelScope.launch {
         if (status != TextToSpeech.ERROR) {
             Log.i("XXX", "Google tts initialized")
@@ -124,7 +99,6 @@ class SpeakViewModel @Inject constructor(
     }
 
     fun playRecording(path: String) {
-        //set up MediaPlayer
         val mp = MediaPlayer()
         try {
             mp.setDataSource(path)
