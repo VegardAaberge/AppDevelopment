@@ -32,7 +32,7 @@ class SqlDelightRecordingDataSource(
             .getAllRecordings()
             .executeAsList()
             .map { it.toRecording() }
-            .sortedBy { it.text }
+            .sortedByDescending { it.created }
     }
 
     override suspend fun deleteRecordingById(id: String) {

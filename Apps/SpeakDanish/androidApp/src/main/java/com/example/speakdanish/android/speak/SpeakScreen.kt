@@ -81,7 +81,7 @@ fun SpeakScreen(
 
     SpeakBody(
         state = state,
-        listenAgain = { viewModel.onEvent(SpeakScreenEvent.ListenAgain) },
+        listenAgain = { viewModel.onEvent(SpeakScreenEvent.ListenAgain(it)) },
         settingsTapped = { viewModel.onEvent(SpeakScreenEvent.HistoryTapped) },
         submitTapped = { viewModel.onEvent(SpeakScreenEvent.SubmitTapped)},
         listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) },
@@ -108,7 +108,7 @@ fun SpeakScreen(
 @Composable
 fun SpeakBody(
     state: SpeakState,
-    listenAgain: () -> Unit,
+    listenAgain: (Boolean) -> Unit,
     recordTapped: (MotionEvent) -> Unit,
     settingsTapped: () -> Unit,
     submitTapped: () -> Unit,

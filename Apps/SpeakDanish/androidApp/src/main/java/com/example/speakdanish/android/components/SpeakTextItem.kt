@@ -27,11 +27,18 @@ import kotlinx.coroutines.delay
 fun SpeakTextItem(
     isListening: Boolean,
     text: String,
-    listenAction: () -> Unit,
+    listenAction: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var highVolume by remember {
         mutableStateOf(true)
+    }
+
+    var fastSpeed by remember {
+        mutableStateOf(true)
+    }
+    LaunchedEffect(key1 = text){
+        fastSpeed = true
     }
 
     LaunchedEffect(key1 = isListening){
@@ -46,7 +53,8 @@ fun SpeakTextItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clickable(MutableInteractionSource(), null) {
-                listenAction()
+                listenAction(fastSpeed)
+                fastSpeed = !fastSpeed
             }
     ) {
         Box(

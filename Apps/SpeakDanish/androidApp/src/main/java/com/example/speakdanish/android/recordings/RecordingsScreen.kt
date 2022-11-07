@@ -56,7 +56,7 @@ fun RecordingsScreen(
         },
         listenToRecording = { viewModel.onEvent(RecordingsScreenEvent.ListenToRecording(it)) },
         deleteRecording = { viewModel.onEvent(RecordingsScreenEvent.DeleteRecording(it)) },
-        playRecording = { viewModel.onEvent(RecordingsScreenEvent.PlayRecording(it)) },
+        playRecording = { id, fast -> viewModel.onEvent(RecordingsScreenEvent.PlayRecording(id, fast)) },
         newRecording = { viewModel.onEvent(RecordingsScreenEvent.NewRecording(it)) },
     )
 }
@@ -67,7 +67,7 @@ fun RecordingsBody(
     goBack: () -> Unit,
     listenToRecording: (String) -> Unit,
     deleteRecording: (String) -> Unit,
-    playRecording: (String) -> Unit,
+    playRecording: (String, Boolean) -> Unit,
     newRecording: (String) -> Unit,
 ) {
     Scaffold(
@@ -100,7 +100,7 @@ fun RecordingsBody(
                     playRecordId = state.playRecordId,
                     listenToRecording = { listenToRecording(recording.id) },
                     deleteRecording = { deleteRecording(recording.id) },
-                    playRecording = { playRecording(recording.id) },
+                    playRecording = { fast -> playRecording(recording.id, fast) },
                     newRecording = { newRecording(recording.id) },
                 )
                 Divider(modifier = Modifier.fillMaxWidth())
@@ -116,7 +116,7 @@ fun RecordingItem(
     playRecordId: String?,
     listenToRecording: () -> Unit,
     deleteRecording: () -> Unit,
-    playRecording: () -> Unit,
+    playRecording: (Boolean) -> Unit,
     newRecording: () -> Unit,
 ) {
     val dismissState = rememberDismissState()
@@ -230,7 +230,7 @@ fun SpeakBodyPreview() {
             goBack = { },
             listenToRecording = { },
             deleteRecording = { },
-            playRecording = { },
+            playRecording = { _ , _ -> },
             newRecording = {}
         )
     }

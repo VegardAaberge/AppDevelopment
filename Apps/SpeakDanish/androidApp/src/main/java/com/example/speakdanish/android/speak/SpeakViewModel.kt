@@ -60,7 +60,7 @@ class SpeakViewModel @Inject constructor(
     fun onEvent(event: SpeakScreenEvent){
         when(event) {
             is SpeakScreenEvent.ListenAgain -> {
-                playNativeSpeech(state.value.sentence)
+                playNativeSpeech(state.value.sentence, event.fast)
             }
             is SpeakScreenEvent.ListenToRecording -> {
                 state.value.recording?.let {
@@ -105,16 +105,20 @@ class SpeakViewModel @Inject constructor(
                 viewModelScope.launch {
                     recordingDataSource.insertRecording(state.value.recording!!)
                 }
+                savedStateHandle[HANDLE] = SpeakState(
+                    sentence = getRandomSentence.execute(state.value.sentence)
+                )
             }
         }
     }
 
-    fun playNativeSpeech(sentence: String){
+    fun playNativeSpeech(sentence: String, fast: Boolean){
         if(selectedVoice == null){
             selectedVoice = if(voices.isNotEmpty()) voices.random() else null
         }
         if(selectedVoice != null){
             googleTTS.setVoice(selectedVoice)
+            googleTTS.setSpeechRate(if(fast) 0.9f else 0.6f)
             googleTTS.speak(sentence.subSequence(0, sentence.length), TextToSpeech.QUEUE_ADD, null, "1")
         }else{
             InstallVoiceData()

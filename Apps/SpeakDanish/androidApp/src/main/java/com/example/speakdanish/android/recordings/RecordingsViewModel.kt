@@ -10,7 +10,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.speakdanish.android.models.UIEvent
-import com.example.speakdanish.domain.Recording
 import com.example.speakdanish.domain.RecordingDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -54,7 +53,7 @@ class RecordingsViewModel @Inject constructor(
             }
             is RecordingsScreenEvent.PlayRecording -> {
                 state.value.recordings.firstOrNull { it.id == event.recordId }?.let {
-                    playNativeSpeech(it.id, it.text)
+                    playNativeSpeech(it.id, it.text, event.fast)
                 }
             }
             is RecordingsScreenEvent.NewRecording -> {
@@ -85,12 +84,13 @@ class RecordingsViewModel @Inject constructor(
         }
     }
 
-    private fun playNativeSpeech(id: String, sentence: String){
+    private fun playNativeSpeech(id: String, sentence: String, fast: Boolean){
         if(selectedVoice == null){
             selectedVoice = if(voices.isNotEmpty()) voices.random() else null
         }
         if(selectedVoice != null){
             textToSpeech.setVoice(selectedVoice)
+            textToSpeech.setSpeechRate(if(fast) 0.9f else 0.6f)
             textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) = setPlayRecordId(id)
                 override fun onDone(utteranceId: String?) = setPlayRecordId(null)
