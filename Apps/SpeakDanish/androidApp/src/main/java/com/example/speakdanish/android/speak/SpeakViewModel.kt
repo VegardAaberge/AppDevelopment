@@ -109,6 +109,11 @@ class SpeakViewModel @Inject constructor(
                     sentence = getRandomSentence.execute(state.value.sentence)
                 )
             }
+            SpeakScreenEvent.SkipTapped -> {
+                savedStateHandle[HANDLE] = SpeakState(
+                    sentence = getRandomSentence.execute(state.value.sentence)
+                )
+            }
         }
     }
 

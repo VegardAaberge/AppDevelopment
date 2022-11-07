@@ -82,8 +82,9 @@ fun SpeakScreen(
     SpeakBody(
         state = state,
         listenAgain = { viewModel.onEvent(SpeakScreenEvent.ListenAgain(it)) },
-        settingsTapped = { viewModel.onEvent(SpeakScreenEvent.HistoryTapped) },
+        historyTapped = { viewModel.onEvent(SpeakScreenEvent.HistoryTapped) },
         submitTapped = { viewModel.onEvent(SpeakScreenEvent.SubmitTapped)},
+        skipTapped = { viewModel.onEvent(SpeakScreenEvent.SkipTapped)},
         listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) },
         recordTapped = { motionEvent ->
             val saveDirectory = context.getFilesDir().absolutePath + File.separator
@@ -110,7 +111,8 @@ fun SpeakBody(
     state: SpeakState,
     listenAgain: (Boolean) -> Unit,
     recordTapped: (MotionEvent) -> Unit,
-    settingsTapped: () -> Unit,
+    historyTapped: () -> Unit,
+    skipTapped: () -> Unit,
     submitTapped: () -> Unit,
     listenToRecording: (String) -> Unit,
 ) {
@@ -123,7 +125,7 @@ fun SpeakBody(
                 actions = {
                     IconButton(
                         onClick = {
-                            settingsTapped()
+                            historyTapped()
                         }
                     ) {
                         Icon(
@@ -131,7 +133,16 @@ fun SpeakBody(
                             contentDescription = "History",
                         )
                     }
-
+                    IconButton(
+                        onClick = {
+                            skipTapped()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_skip_next_24),
+                            contentDescription = "Skip",
+                        )
+                    }
                 }
             )
         },
@@ -263,8 +274,9 @@ fun SpeakBodyPreview() {
             ),
             listenAgain = { },
             recordTapped = { },
-            settingsTapped = { },
+            historyTapped = { },
             submitTapped = { },
+            skipTapped = { },
             listenToRecording = { }
         )
     }

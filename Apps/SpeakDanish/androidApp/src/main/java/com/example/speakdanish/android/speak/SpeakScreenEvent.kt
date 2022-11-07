@@ -7,5 +7,6 @@ sealed class SpeakScreenEvent {
     data class RecordTapped(val saveDirectory: String, val motionEvent: MotionEvent): SpeakScreenEvent()
     object HistoryTapped: SpeakScreenEvent()
     object SubmitTapped : SpeakScreenEvent()
+    object SkipTapped : SpeakScreenEvent()
     data class ListenToRecording(val recordId: String): SpeakScreenEvent()
 }
