@@ -119,6 +119,9 @@ class SpeakViewModel @Inject constructor(
 
     fun playNativeSpeech(sentence: String, fast: Boolean){
         if(selectedVoice == null){
+            if(voices.isEmpty()){
+                voices = googleTTS.voices?.filter { it.locale.displayLanguage == "Danish" && !it.isNetworkConnectionRequired } ?: emptyList()
+            }
             selectedVoice = if(voices.isNotEmpty()) voices.random() else null
         }
         if(selectedVoice != null){

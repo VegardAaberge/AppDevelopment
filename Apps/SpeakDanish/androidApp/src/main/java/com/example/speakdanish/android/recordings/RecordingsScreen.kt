@@ -51,31 +51,23 @@ fun RecordingsScreen(
 
     RecordingsBody(
         state = state,
-        goBack = {
-            navigator.popBackStack()
-        },
-        listenToRecording = { viewModel.onEvent(RecordingsScreenEvent.ListenToRecording(it)) },
-        deleteRecording = { viewModel.onEvent(RecordingsScreenEvent.DeleteRecording(it)) },
-        playRecording = { id, fast -> viewModel.onEvent(RecordingsScreenEvent.PlayRecording(id, fast)) },
-        newRecording = { viewModel.onEvent(RecordingsScreenEvent.NewRecording(it)) },
+        onEvent = viewModel::onEvent,
     )
 }
 
 @Composable
 fun RecordingsBody(
     state: RecordingsState,
-    goBack: () -> Unit,
-    listenToRecording: (String) -> Unit,
-    deleteRecording: (String) -> Unit,
-    playRecording: (String, Boolean) -> Unit,
-    newRecording: (String) -> Unit,
+    onEvent: (RecordingsScreenEvent) -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
                     IconButton(
-                        onClick = goBack
+                        onClick = {
+                            onEvent(RecordingsScreenEvent.GoBack)
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
@@ -98,10 +90,7 @@ fun RecordingsBody(
                 RecordingItem(
                     recording = recording,
                     playRecordId = state.playRecordId,
-                    listenToRecording = { listenToRecording(recording.id) },
-                    deleteRecording = { deleteRecording(recording.id) },
-                    playRecording = { fast -> playRecording(recording.id, fast) },
-                    newRecording = { newRecording(recording.id) },
+                    onEvent = onEvent
                 )
                 Divider(modifier = Modifier.fillMaxWidth())
             }
@@ -114,14 +103,11 @@ fun RecordingsBody(
 fun RecordingItem(
     recording: Recording,
     playRecordId: String?,
-    listenToRecording: () -> Unit,
-    deleteRecording: () -> Unit,
-    playRecording: (Boolean) -> Unit,
-    newRecording: () -> Unit,
+    onEvent: (RecordingsScreenEvent) -> Unit
 ) {
     val dismissState = rememberDismissState()
     if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-        deleteRecording()
+        onEvent(RecordingsScreenEvent.DeleteRecording(recording.id))
     }
 
     SwipeToDismiss(
@@ -172,19 +158,29 @@ fun RecordingItem(
                     SpeakTextItem(
                         text = recording.text,
                         isListening = recording.id == playRecordId,
-                        listenAction = playRecording,
+                        listenAction = { fast ->
+                            onEvent(RecordingsScreenEvent.PlayRecording(recording.id, fast))
+                        },
                         modifier = Modifier.weight(1f)
                     )
-                    IconButton(onClick = listenToRecording) {
-                        Icon(painter = painterResource(
-                            id = R.drawable.baseline_audio_file_24),
+                    IconButton(onClick = {
+                        onEvent(RecordingsScreenEvent.ListenToRecording(recording.id))
+                    }) {
+                        Icon(
+                            painter = painterResource(
+                                id = R.drawable.baseline_audio_file_24
+                            ),
                             tint = Color(0xFFC41E3A),
                             contentDescription = "Recording"
                         )
                     }
-                    IconButton(onClick = newRecording) {
-                        Icon(painter = painterResource(
-                            id = R.drawable.baseline_play_circle_outline_24),
+                    IconButton(onClick = {
+                        onEvent(RecordingsScreenEvent.NewRecording(recording.id))
+                    }) {
+                        Icon(
+                            painter = painterResource(
+                                id = R.drawable.baseline_play_circle_outline_24
+                            ),
                             tint = Color(0xFF228B22),
                             contentDescription = "Recording"
                         )
@@ -227,11 +223,7 @@ fun SpeakBodyPreview() {
                     ),
                 )
             ),
-            goBack = { },
-            listenToRecording = { },
-            deleteRecording = { },
-            playRecording = { _ , _ -> },
-            newRecording = {}
+            onEvent = { },
         )
     }
 }

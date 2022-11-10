@@ -77,7 +77,7 @@ android {
     namespace = "com.example.speakdanish"
     compileSdk = 33
     defaultConfig {
-        minSdk = 24
+        minSdk = 23
         targetSdk = 33
     }
 }

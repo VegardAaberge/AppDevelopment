@@ -7,4 +7,5 @@ sealed class RecordingsScreenEvent {
     data class DeleteRecording(val recordId: String): RecordingsScreenEvent()
     data class PlayRecording(val recordId: String, val fast: Boolean): RecordingsScreenEvent()
     data class NewRecording(val recordId: String): RecordingsScreenEvent()
+    object GoBack: RecordingsScreenEvent()
 }

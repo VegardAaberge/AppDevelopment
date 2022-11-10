@@ -63,6 +63,11 @@ class RecordingsViewModel @Inject constructor(
                     }
                 }
             }
+            RecordingsScreenEvent.GoBack -> {
+                viewModelScope.launch {
+                    _uiEvent.send(UIEvent.PopPage)
+                }
+            }
         }
     }
 

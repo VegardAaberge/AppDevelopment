@@ -81,11 +81,7 @@ fun SpeakScreen(
 
     SpeakBody(
         state = state,
-        listenAgain = { viewModel.onEvent(SpeakScreenEvent.ListenAgain(it)) },
-        historyTapped = { viewModel.onEvent(SpeakScreenEvent.HistoryTapped) },
-        submitTapped = { viewModel.onEvent(SpeakScreenEvent.SubmitTapped)},
-        skipTapped = { viewModel.onEvent(SpeakScreenEvent.SkipTapped)},
-        listenToRecording = { viewModel.onEvent(SpeakScreenEvent.ListenToRecording(it)) },
+        onEvent = viewModel::onEvent,
         recordTapped = { motionEvent ->
             val saveDirectory = context.getFilesDir().absolutePath + File.separator
 
@@ -109,12 +105,8 @@ fun SpeakScreen(
 @Composable
 fun SpeakBody(
     state: SpeakState,
-    listenAgain: (Boolean) -> Unit,
     recordTapped: (MotionEvent) -> Unit,
-    historyTapped: () -> Unit,
-    skipTapped: () -> Unit,
-    submitTapped: () -> Unit,
-    listenToRecording: (String) -> Unit,
+    onEvent: (SpeakScreenEvent) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -125,7 +117,7 @@ fun SpeakBody(
                 actions = {
                     IconButton(
                         onClick = {
-                            historyTapped()
+                            onEvent(SpeakScreenEvent.HistoryTapped)
                         }
                     ) {
                         Icon(
@@ -135,7 +127,7 @@ fun SpeakBody(
                     }
                     IconButton(
                         onClick = {
-                            skipTapped()
+                            onEvent(SpeakScreenEvent.SkipTapped)
                         }
                     ) {
                         Icon(
@@ -174,7 +166,9 @@ fun SpeakBody(
             Spacer(modifier = Modifier.height(16.dp))
             SpeakTextItem(
                 text = state.sentence,
-                listenAction = listenAgain,
+                listenAction = {
+                      onEvent(SpeakScreenEvent.ListenAgain(it))
+                },
                 isListening = false, //TODO
             )
             RecordItem(
@@ -199,7 +193,7 @@ fun SpeakBody(
                 SpeakTextItem(
                     text = text,
                     listenAction = {
-                        listenToRecording(recording.id)
+                        onEvent(SpeakScreenEvent.ListenToRecording(recording.id))
                     },
                     isListening = false, //TODO
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -209,7 +203,7 @@ fun SpeakBody(
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {
-                    submitTapped()
+                    onEvent(SpeakScreenEvent.SubmitTapped)
                 },
                 enabled = state.recording != null,
                 shape = RoundedCornerShape(16.dp),
@@ -272,12 +266,8 @@ fun SpeakBodyPreview() {
                 ),
                 isRecording = true
             ),
-            listenAgain = { },
             recordTapped = { },
-            historyTapped = { },
-            submitTapped = { },
-            skipTapped = { },
-            listenToRecording = { }
+            onEvent = { }
         )
     }
 }
